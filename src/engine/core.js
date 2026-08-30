@@ -6,6 +6,7 @@ import { parseX12 } from './x12.js';
 import { claimRequest } from './expectations.js';
 import { loadStubs, matchStub } from './stubs.js';
 import { makeRenderer } from './render.js';
+import { PROFILES, WAYSTAR, applyDelimiters } from './profile.js';
 
 const DELAY_RE = /^(\d+)(ms|s|m|h)?$/;
 function parseDelay(v, speed) {
@@ -18,8 +19,9 @@ function parseDelay(v, speed) {
 
 export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, expectations }) {
   let stubs = loadStubs(stubsDir);
-  const renderer = makeRenderer(templatesDir);
-  const settings = { speed: 600, outage: false, hold: false };
+  let profile = WAYSTAR;
+  const renderer = makeRenderer(templatesDir, profile);
+  const settings = { speed: 600, outage: false, hold: false, profile: profile.name };
   const held = [];   // responses waiting for manual release when settings.hold
   const timers = new Set();
 
@@ -66,11 +68,16 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
     return String(v ?? '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, max) || 'X';
   }
 
+  let fileSeq = 0;
   function respFileName(txn, doc) {
-    const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
-    const tag = { '271': 'ELG', '999': 'ACK', '277': 'STA', '835': 'ERA' }[txn] || safeToken(txn, 6);
-    const ext = txn === '835' ? '835' : 'txt';
-    return `${tag}_${safeToken(txn, 6)}_${ts}_${safeToken(doc.isa13)}.${ext}`;
+    const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    return profile.fileName({
+      transaction: txn,
+      clientId: safeToken(doc.isa06 || profile.clientId, 12),
+      payerId: safeToken(doc.payerId || '00000', 8),
+      stamp,
+      seq: String(++fileSeq).padStart(6, '0'),
+    });
   }
 
   // Defence in depth: even with sanitised tokens, never write outside outboundDir.
@@ -146,7 +153,7 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
           const t = setTimeout(() => {
             timers.delete(t);
             try {
-              const content = renderer.render(step.template, doc, step.values || {});
+              const content = applyDelimiters(renderer.render(step.template, doc, step.values || {}), profile);
               deliver(step.transaction, content, respFileName(step.transaction, doc), entry);
             } catch (e) {
               entry.deliveries.push({ txn: step.transaction, status: `render error: ${e.message}`, at: new Date().toISOString() });
@@ -165,6 +172,14 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
     handle,
     settings,
     reloadStubs() { stubs = loadStubs(stubsDir); renderer.clearCache(); return stubs.length; },
+    setProfile(name) {
+      if (!PROFILES[name]) return false;
+      profile = PROFILES[name];
+      settings.profile = profile.name;
+      renderer.setProfile(profile);
+      return true;
+    },
+    profileName: () => profile.name,
     // Render every response a scenario would send, against a representative
     // request, purely for display.
     preview(id) {
@@ -193,7 +208,8 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
           responses: run.steps.map(step => {
             try {
               return { transaction: step.transaction, delay: step.delay || '0s',
-                       edi: renderer.render(step.template, sample, step.values || {}) };
+                       fileName: respFileName(step.transaction, sample),
+                       edi: applyDelimiters(renderer.render(step.template, sample, step.values || {}), profile) };
             } catch (e) {
               return { transaction: step.transaction, delay: step.delay || '0s', error: e.message };
             }

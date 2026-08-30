@@ -1,0 +1,20 @@
+description: Call the payer for benefits — Coverage exists but the payer will not send benefit detail
+  electronically.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Call the payer for benefits
+  group: Eligibility (270 → 271)
+  outcome: Coverage exists but the payer will not send benefit detail electronically.
+  technical: EB*U (contact following entity for eligibility or benefit information) with the contact in
+    PER
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MOCK PLAN
+    - EB*U*IND*30**BENEFITS DEPARTMENT
+    - MSG*CALL 800-555-0142 FOR BEHAVIORAL HEALTH BENEFIT DETAIL

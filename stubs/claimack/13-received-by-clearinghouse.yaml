@@ -1,0 +1,21 @@
+description: 'Received by the clearinghouse — The first thing that comes back on nearly every claim: the
+  clearinghouse has it. The payer has not seen it yet.'
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: Received by the clearinghouse
+  group: Claim acknowledgement (277CA)
+  outcome: 'The first thing that comes back on nearly every claim: the clearinghouse has it. The payer
+    has not seen it yet.'
+  technical: STC*A1:19:AY at the receiver level (acknowledged, entity = clearinghouse)
+  seenInProduction: the single most common status in our traffic — 4,766 occurrences
+respond:
+  transaction: '277'
+  delay: 45s
+  template: 277ca-generic.hbs
+  values:
+    receiverStc: A1:19:AY
+    stc: A1:19:PR
+    action: WQ
+    stcText: ACCEPTED BY CLEARINGHOUSE - FORWARDED TO PAYER

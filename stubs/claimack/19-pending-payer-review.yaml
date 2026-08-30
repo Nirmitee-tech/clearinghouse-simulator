@@ -1,0 +1,23 @@
+description: Pending — payer is reviewing — The payer has it, has not finished, and has said so explicitly.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Pending — payer is reviewing
+  group: Claim acknowledgement (277CA)
+  outcome: The payer has it, has not finished, and has said so explicitly.
+  technical: STC*P3:46:1P (pending, provider review) · action WQ = waiting in queue
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: P3:46:1P
+    action: WQ
+    stcText: PENDING PROVIDER REVIEW

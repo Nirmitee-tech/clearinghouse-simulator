@@ -1,5 +1,5 @@
-ISA*00*          *00*          *ZZ*{{padRight (default isa08 "CLEARMOCK") 15}}*ZZ*{{padRight (default isa06 "SUBMITTER") 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
-GS*HP*{{default gs03 "CLEARMOCK"}}*{{default gs02 "SUBMITTER"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X221A1~
+ISA*00*          *00*          *ZZ*{{padRight mockSender 15}}*ZZ*{{padRight mockReceiver 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
+GS*HP*{{mockSender}}*{{mockReceiver}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X221A1~
 ST*835*0001~
 BPR*I*{{default chargeAmount "0.00"}}*C*ACH*CCP*01*999999999*DA*123456789*{{default payerId "00000"}}**01*999988880*DA*987654321*{{now "YYYYMMDD"}}~
 TRN*1*CHK{{respControl}}*{{default payerTin "1999999984"}}~

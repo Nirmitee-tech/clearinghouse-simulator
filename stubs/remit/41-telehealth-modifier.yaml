@@ -1,0 +1,46 @@
+description: Paid — telehealth session — A remote session paid at the same rate. The modifier is what
+  tells the payer it was delivered by video.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid — telehealth session
+  group: Remittance (835)
+  outcome: A remote session paid at the same rate. The modifier is what tells the payer it was delivered
+    by video.
+  technical: SVC procedure carries modifier 95 or GT (HC:90837:95) — the dominant telehealth pattern in
+    live ERAs
+  seenInProduction: GT and 95 modifiers appear on more than half of live 90837 lines
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '150.00'
+    allowedAmount: '180.00'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00
+    svcLines:
+    - SVC*HC:90837:95*200.00*150.00**1
+    - DTM*472*20260830
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00
+    - REF*6R*SL0001
+    - AMT*B6*180.00

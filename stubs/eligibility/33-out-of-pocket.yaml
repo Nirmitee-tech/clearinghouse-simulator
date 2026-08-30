@@ -1,0 +1,24 @@
+description: 'Active — with out-of-pocket maximum — Full benefit picture including the stop-loss: once
+  the out-of-pocket maximum is met the patient owes nothing more.'
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — with out-of-pocket maximum
+  group: Eligibility (270 → 271)
+  outcome: 'Full benefit picture including the stop-loss: once the out-of-pocket maximum is met the patient
+    owes nothing more.'
+  technical: EB*G (out of pocket / stop loss) alongside EB*C deductible and EB*B copay
+  seenInProduction: EB*G appears 15,272 times in live traffic — our library had none
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MOCK BEHAVIORAL HEALTH PPO
+    - EB*C*IND*30*****1500.00
+    - EB*C*IND*30*****300.00
+    - EB*G*IND*30*****6000.00
+    - EB*G*IND*30*****1750.00
+    - EB*B*IND*98***27*30.00

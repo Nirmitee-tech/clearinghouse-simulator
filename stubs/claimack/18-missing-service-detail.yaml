@@ -1,0 +1,25 @@
+description: Rejected — service line detail missing — A required piece of the service line was absent,
+  so the claim could not be priced.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — service line detail missing
+  group: Claim acknowledgement (277CA)
+  outcome: A required piece of the service line was absent, so the claim could not be priced.
+  technical: STC*A7:153 (missing or invalid service line information)
+  seenInProduction: 32 live rejections
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A7:153
+    action: U
+    stcText: SERVICE LINE INFORMATION MISSING OR INVALID

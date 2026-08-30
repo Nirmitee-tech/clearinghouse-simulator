@@ -1,0 +1,16 @@
+description: Member exists but not in this group — The person is known to the payer but not under the
+  plan or group we asked about.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Member exists but not in this group
+  group: Eligibility (270 → 271)
+  outcome: The person is known to the payer but not under the plan or group we asked about.
+  technical: AAA*Y**78*C (subscriber/insured not in group or plan identified)
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**78*C

@@ -1,0 +1,18 @@
+description: Provider identifier rejected — The payer will not answer because it cannot recognise the
+  NPI or tax ID we sent. Nothing to do with the patient.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Provider identifier rejected
+  group: Eligibility (270 → 271)
+  outcome: The payer will not answer because it cannot recognise the NPI or tax ID we sent. Nothing to
+    do with the patient.
+  technical: AAA*Y**43*C (invalid or missing provider identification) at the provider loop
+  seenInProduction: most common rejection in our live traffic — 589 of 3,586 responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    providerAaa: AAA*Y**43*C

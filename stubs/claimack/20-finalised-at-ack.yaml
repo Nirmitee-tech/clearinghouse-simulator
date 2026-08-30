@@ -1,0 +1,24 @@
+description: Finalised at acknowledgement — Unusually, the payer finished adjudicating before the acknowledgement
+  came back.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Finalised at acknowledgement
+  group: Claim acknowledgement (277CA)
+  outcome: Unusually, the payer finished adjudicating before the acknowledgement came back.
+  technical: STC*F0:0 (finalised) arriving on the 277CA rather than waiting for the remittance
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: F0:0
+    action: WQ
+    stcText: FINALIZED

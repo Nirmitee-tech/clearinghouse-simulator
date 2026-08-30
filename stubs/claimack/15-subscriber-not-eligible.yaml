@@ -1,0 +1,25 @@
+description: Rejected — subscriber not eligible — The patient exists but had no active coverage for the
+  service date.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — subscriber not eligible
+  group: Claim acknowledgement (277CA)
+  outcome: The patient exists but had no active coverage for the service date.
+  technical: STC*A7:88:IL (entity not eligible for benefits, insured or subscriber)
+  seenInProduction: 32 live rejections
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A7:88:IL
+    action: U
+    stcText: SUBSCRIBER NOT ELIGIBLE FOR BENEFITS ON DATE OF SERVICE

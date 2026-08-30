@@ -29,6 +29,7 @@ h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.11em;color:var(--mu
 .sc input[type=checkbox]{margin-top:4px;flex:none}
 .sc .t{font-weight:500;font-size:.93rem;cursor:pointer}
 .sc .o{color:var(--muted);font-size:.85rem}
+.sc .seen{font-size:.78rem;color:var(--ok);margin-top:4px}
 .sc .tech{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.77rem;color:var(--muted);
   background:var(--code);border-radius:5px;padding:5px 8px;margin-top:6px;display:inline-block}
 .sc .more{margin-left:auto;flex:none;font:inherit;font-size:.75rem;padding:3px 9px;border-radius:5px;
@@ -102,7 +103,8 @@ function scenarioRow(s){
       <input type="checkbox" data-pick="${esc(id)}" ${picked.has(id)?'checked':''}>
       <div><span class="t" data-pick-label="${esc(id)}">${esc(sc.title)}</span>
         <div class="o">${esc(sc.outcome)}</div>
-        <div class="tech">${esc(sc.technical)}</div></div>
+        <div class="tech">${esc(sc.technical)}</div>
+        ${sc.seenInProduction?`<div class="seen">observed in live traffic — ${esc(sc.seenInProduction)}</div>`:''}</div>
       <button class="more" data-preview="${esc(id)}">${open?'hide response':'show response'}</button>
     </div>
     ${open?(pv?`<pre>${pv.runs.map(run=>run.responses.map(r=>

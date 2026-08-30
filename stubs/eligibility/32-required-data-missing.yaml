@@ -1,0 +1,17 @@
+description: Request was incomplete — Our own request lacked something mandatory, so the payer never looked
+  anything up.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Request was incomplete
+  group: Eligibility (270 → 271)
+  outcome: Our own request lacked something mandatory, so the payer never looked anything up.
+  technical: AAA*Y**15*C (required application data missing)
+  seenInProduction: 15 live responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**15*C

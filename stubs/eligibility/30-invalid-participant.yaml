@@ -1,0 +1,18 @@
+description: Participant not valid for this payer — The payer rejects the enquiry outright and does not
+  want it resent as-is.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Participant not valid for this payer
+  group: Eligibility (270 → 271)
+  outcome: The payer rejects the enquiry outright and does not want it resent as-is.
+  technical: AAA*Y**79*N (invalid participant identification) — follow-up action N = resubmission not
+    allowed
+  seenInProduction: 32 live responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**79*N

@@ -1,0 +1,16 @@
+description: Payer not identified — The request did not name a payer the clearinghouse could route to.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Payer not identified
+  group: Eligibility (270 → 271)
+  outcome: The request did not name a payer the clearinghouse could route to.
+  technical: AAA*Y**T4*C (payer name or identifier missing)
+  seenInProduction: 85 live responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    payerAaa: AAA*Y**T4*C

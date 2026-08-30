@@ -1,0 +1,26 @@
+description: Rejected — billing provider details wrong — The billing provider on the claim does not match
+  what the payer holds — usually NPI, tax ID or address.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — billing provider details wrong
+  group: Claim acknowledgement (277CA)
+  outcome: The billing provider on the claim does not match what the payer holds — usually NPI, tax ID
+    or address.
+  technical: STC*A3:125:82 (submission or billing error, rendering provider)
+  seenInProduction: 23 live rejections
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:125:82
+    action: U
+    stcText: BILLING PROVIDER INFORMATION DOES NOT MATCH PAYER RECORDS

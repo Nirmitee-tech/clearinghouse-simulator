@@ -1,0 +1,18 @@
+description: Payer cannot process the request — The payer answered, but only to say it could not handle
+  the enquiry. Not a coverage answer.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Payer cannot process the request
+  group: Eligibility (270 → 271)
+  outcome: The payer answered, but only to say it could not handle the enquiry. Not a coverage answer.
+  technical: EB*V (cannot process) with MSG explaining why
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*V*IND*30
+    - MSG*ELIGIBILITY SYSTEM CANNOT PROCESS THIS INQUIRY - CONTACT PAYER

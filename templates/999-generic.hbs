@@ -1,5 +1,5 @@
-ISA*00*          *00*          *ZZ*{{padRight (default isa08 "CLEARMOCK") 15}}*ZZ*{{padRight (default isa06 "SUBMITTER") 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
-GS*FA*{{default gs03 "CLEARMOCK"}}*{{default gs02 "SUBMITTER"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X231A1~
+ISA*00*          *00*          *ZZ*{{padRight mockSender 15}}*ZZ*{{padRight mockReceiver 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
+GS*FA*{{mockSender}}*{{mockReceiver}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X231A1~
 ST*999*0001*005010X231A1~
 AK1*HC*{{default gs06 "1"}}*005010X222A1~
 AK2*837*{{default st02 "0001"}}*005010X222A1~

@@ -1,0 +1,35 @@
+description: Reduced — pending other insurance — Held back because another payer should look at it first.
+  Coordination of benefits, in adjustment form.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Reduced — pending other insurance
+  group: Remittance (835)
+  outcome: Held back because another payer should look at it first. Coordination of benefits, in adjustment
+    form.
+  technical: CAS*OA*133 (the disposition of the claim is pending further review)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*OA*133*{{chargeAmount}}

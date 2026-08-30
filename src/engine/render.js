@@ -8,7 +8,8 @@ import path from 'node:path';
 
 let responseControlNumber = Date.now() % 1_000_000_000;
 
-export function makeRenderer(templatesDir) {
+export function makeRenderer(templatesDir, profileIn) {
+  let profile = profileIn;
   const hb = Handlebars.create();
 
   hb.registerHelper('pad', (v, len) => String(v ?? '').padStart(Number(len), '0'));
@@ -46,13 +47,21 @@ export function makeRenderer(templatesDir) {
 
   return {
     render(templateName, doc, extra = {}) {
-      const ctx = { ...doc, ...resolveValues(extra, doc), respControl: String(++responseControlNumber).padStart(9, '0') };
+      const ctx = {
+        // Responses come FROM the clearinghouse TO whoever sent the request.
+        mockSender: profile?.sender ?? 'CLEARMOCK',
+        mockReceiver: doc.isa06 || profile?.clientId || 'SUBMITTER',
+        ...doc,
+        ...resolveValues(extra, doc),
+        respControl: String(++responseControlNumber).padStart(9, '0'),
+      };
       // Templates are authored with one segment per line for reviewability;
       // wire format collapses to segment terminator + no newlines.
       const out = template(templateName)(ctx);
       return out.split('\n').map(l => l.trim()).filter(Boolean).join('');
     },
     clearCache() { cache.clear(); },
+    setProfile(p) { profile = p; },
   };
 }
 

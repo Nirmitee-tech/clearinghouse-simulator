@@ -1,0 +1,18 @@
+description: Care restricted to named providers — Covered, but only if delivered by specific providers.
+  Anyone else is out of network by definition.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Care restricted to named providers
+  group: Eligibility (270 → 271)
+  outcome: Covered, but only if delivered by specific providers. Anyone else is out of network by definition.
+  technical: EB*N (services restricted to following provider) naming the permitted provider
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**NARROW NETWORK PLAN
+    - EB*N*IND*MH**IN NETWORK BEHAVIORAL PROVIDERS ONLY

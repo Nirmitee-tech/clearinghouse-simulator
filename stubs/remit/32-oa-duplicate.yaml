@@ -1,0 +1,36 @@
+description: Denied — duplicate, other adjustment — A duplicate flagged as an "other adjustment" rather
+  than a contractual one — the group code changes who absorbs it.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — duplicate, other adjustment
+  group: Remittance (835)
+  outcome: A duplicate flagged as an "other adjustment" rather than a contractual one — the group code
+    changes who absorbs it.
+  technical: CAS*OA*18 (exact duplicate claim) — note group OA, not CO, which is what our library assumed
+  seenInProduction: 59 live occurrences — the most common non-contractual adjustment
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*OA*18*{{chargeAmount}}

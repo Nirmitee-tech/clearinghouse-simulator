@@ -1,0 +1,18 @@
+description: Active — pending investigation — Coverage shows but the payer is still checking something.
+  Treat as provisional.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — pending investigation
+  group: Eligibility (270 → 271)
+  outcome: Coverage shows but the payer is still checking something. Treat as provisional.
+  technical: EB*5 (active — pending investigation); its inactive twin is EB*8
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*5*IND*30**PLAN UNDER REVIEW
+    - MSG*ELIGIBILITY PENDING INVESTIGATION - VERIFY BEFORE SERVICE

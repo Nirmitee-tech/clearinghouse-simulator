@@ -1,0 +1,17 @@
+description: Date of service is in the future — Coverage cannot be confirmed for a date that has not happened
+  yet on the payer’s calendar.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Date of service is in the future
+  group: Eligibility (270 → 271)
+  outcome: Coverage cannot be confirmed for a date that has not happened yet on the payer’s calendar.
+  technical: AAA*Y**63*C (date of service in future) at the subscriber loop
+  seenInProduction: 86 live responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**63*C

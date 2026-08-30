@@ -159,7 +159,12 @@ app.delete('/api/overrides', (_q, res) => res.json({ cleared: engine.clearOverri
 app.post('/api/cursors/reset', (_q, res) => res.json({ reset: engine.resetCursors() }));
 
 app.get('/api/settings', (_q, res) => res.json({ ...engine.settings, held: engine.heldCount() }));
-app.post('/api/settings', (q, res) => { Object.assign(engine.settings, q.body || {}); res.json(engine.settings); });
+app.post('/api/settings', (q, res) => {
+  const { profile, ...rest } = q.body || {};
+  if (profile) engine.setProfile(profile);
+  Object.assign(engine.settings, rest);
+  res.json(engine.settings);
+});
 app.post('/api/release', (_q, res) => res.json({ released: engine.releaseHeld() }));
 app.get('/api/outbound', (_q, res) => res.json(
   fs.readdirSync(CFG.outbound).map(f => ({ file: f, size: fs.statSync(path.join(CFG.outbound, f)).size }))

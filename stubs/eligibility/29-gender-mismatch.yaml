@@ -1,0 +1,17 @@
+description: Sex on file does not match — A small demographic mismatch is enough for some payers to refuse
+  the lookup.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Sex on file does not match
+  group: Eligibility (270 → 271)
+  outcome: A small demographic mismatch is enough for some payers to refuse the lookup.
+  technical: AAA*Y**74*C (invalid or missing subscriber gender code)
+  seenInProduction: 50 live responses
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**74*C

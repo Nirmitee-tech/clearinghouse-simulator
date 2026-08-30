@@ -1,0 +1,41 @@
+description: Paid — with line control numbers — A normal payment carrying the line-level reference that
+  reconciliation matches on. Missing it forces guesswork.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid — with line control numbers
+  group: Remittance (835)
+  outcome: A normal payment carrying the line-level reference that reconciliation matches on. Missing
+    it forces guesswork.
+  technical: REF*6R line item control number per SVC loop · DTM*050 received date · AMT*AU coverage amount
+  seenInProduction: REF*6R appears on 2,479 live service lines — our library emitted none
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '150.00'
+    allowedAmount: '180.00'
+    coverageAmount: '180.00'
+    lineControlNumber: SL0001
+    receivedDate: '20260830'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00

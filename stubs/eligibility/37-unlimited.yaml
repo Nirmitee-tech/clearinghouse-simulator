@@ -1,0 +1,19 @@
+description: Active — unlimited benefit — No cap on this benefit. Useful as the counterpart to the visit-limit
+  scenarios.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — unlimited benefit
+  group: Eligibility (270 → 271)
+  outcome: No cap on this benefit. Useful as the counterpart to the visit-limit scenarios.
+  technical: EB*H (unlimited) for the behavioural health service type
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**MOCK PLAN
+    - EB*H*IND*MH
+    - EB*B*IND*MH***27*20.00

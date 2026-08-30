@@ -1,0 +1,19 @@
+description: Rejected — payer detail missing — Something the payer requires about itself was absent, so
+  routing failed.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — payer detail missing
+  group: Claim acknowledgement (277CA)
+  outcome: Something the payer requires about itself was absent, so routing failed.
+  technical: STC*A3:585:PR (denied, payer entity) raised before adjudication
+  seenInProduction: 38 live rejections
+respond:
+  transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:585:PR
+    action: U
+    stcText: PAYER INFORMATION MISSING OR INVALID

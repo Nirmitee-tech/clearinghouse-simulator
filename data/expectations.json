@@ -1,9 +1,9 @@
 {
-  "seq": 455,
+  "seq": 578,
   "records": [
     {
-      "id": "exp_455",
-      "createdAt": "2026-08-30T16:18:21.745Z",
+      "id": "exp_578",
+      "createdAt": "2026-08-30T16:26:12.863Z",
       "enabled": true,
       "hits": 2,
       "cursor": 1,
@@ -17,7 +17,7 @@
       "respondWith": [
         "eligibility/07-subscriber-not-found"
       ],
-      "lastHitAt": "2026-08-30T16:18:21.785Z"
+      "lastHitAt": "2026-08-30T16:26:12.897Z"
     }
   ]
 }
