@@ -1,18 +1,20 @@
-# What live traffic taught us
+# What the corpus taught us
 
-The scenario library and the wire format were checked against a real corpus of
-clearinghouse traffic: **10,432 response files** — 4,432 claim acknowledgements,
-3,586 eligibility responses, 2,116 functional acknowledgements, 298 remittances
-and 32 proprietary XML reports.
+The scenario library and the wire format were checked against a production
+corpus of clearinghouse traffic — **10,432 response files**: 4,432 claim
+acknowledgements, 3,586 eligibility responses, 2,116 functional acknowledgements,
+298 remittances and 32 proprietary XML reports.
 
-The corpus stays on the machine that produced it. Nothing below contains patient
-or payer data — only structural facts and code frequencies.
+That corpus is not public and is not part of this repository: it is real
+healthcare traffic belonging to the practice that received it. What follows is
+structural only — segment order, code frequencies, filename shapes. No patient,
+provider or payer data was copied out of it, and none is reproduced here.
 
 ## Format corrections
 
 The mock originally emitted textbook X12. Live traffic does not look like that.
 
-| | We emitted | Live traffic | Now |
+| | The mock emitted | Live traffic | Now |
 |---|---|---|---|
 | Element separator | `*` | `\|` | fixed |
 | Component separator | `:` | `^` | fixed |
@@ -39,7 +41,7 @@ date, `QTY`, `AMT*YY`, `REF*D9` (the clearinghouse's own claim id) and `REF*0B`.
 The template now reproduces the real segment sequence exactly.
 
 **835 was missing reconciliation anchors.** Live remittances carry `REF*6R`
-line-item control numbers on 2,479 service lines; we emitted none, which makes
+line-item control numbers on 2,479 service lines; the mock emitted none, which makes
 line-level posting guesswork. Also added: `DTM*050` received, `DTM*233` statement
 end, `AMT*AU` coverage amount, `NM1*82` rendering provider, and `TS3` provider
 summary.
@@ -49,8 +51,7 @@ summary.
 Ranked by how often they actually appear.
 
 **Eligibility rejections** — `AAA*Y**43` (invalid provider identification) is the
-single most common answer in the corpus at **589 of 3,586 responses**, and we had
-no scenario for it. Also added: `63` future date of service, `T4` payer not
+single most common answer in the corpus at **589 of 3,586 responses**, and there was no scenario for it. Also added: `63` future date of service, `T4` payer not
 identified, `74` sex mismatch, `79` invalid participant, `78` not in group, `15`
 incomplete request.
 
@@ -61,10 +62,10 @@ provider, `EB*H` unlimited, `EB*5` pending investigation.
 
 **Claim statuses** — `STC*A1:19:AY` (received by clearinghouse) is the most common
 status in the corpus at **4,766 occurrences**; it is the first thing almost every
-claim gets back, and we never sent it. Added with `A7:26:QC`, `A7:88:IL`,
+claim gets back, and the mock never sent it. Added with `A7:26:QC`, `A7:88:IL`,
 `A3:125:82`, `A3:585:PR`, `A7:153`, `P3:46:1P`, `F0:0`.
 
-**Remittance adjustments** — we assumed duplicates arrive as `CO-18`; live traffic
+**Remittance adjustments** — the library assumed duplicates arrive as `CO-18`; the corpus
 uses `OA-18` three times more often, and the group code decides who absorbs the
 cost. Added `CO-119` benefit maximum, `PR-200`, `PR-29` (timely filing billed to
 the patient, alongside the `CO-29` form we had), `PI-22`, `OA-133`.
@@ -73,7 +74,7 @@ the patient, alongside the `CO-29` form we had), `PI-22`, `OA-133`.
 absent entirely.
 
 **Provider-level adjustments** — `PLB*AH` (origination fee) is the most common in
-the corpus; we only had `WO`, `FB` and `L6`.
+the corpus; the library only had `WO`, `FB` and `L6`.
 
 **Telehealth** — more than half of live `90837` lines carry a `95` or `GT`
 modifier. No scenario exercised a modifier at all.

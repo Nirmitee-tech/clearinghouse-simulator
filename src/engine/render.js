@@ -58,6 +58,7 @@ export function makeRenderer(templatesDir, profileIn) {
       // Templates are authored with one segment per line for reviewability;
       // wire format collapses to segment terminator + no newlines.
       const out = template(templateName)(ctx);
+      if (templateName.endsWith('report.hbs')) return out;   // XML keeps its shape
       return out.split('\n').map(l => l.trim()).filter(Boolean).join('');
     },
     clearCache() { cache.clear(); },

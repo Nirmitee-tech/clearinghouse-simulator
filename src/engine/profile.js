@@ -10,7 +10,7 @@ export const WAYSTAR = {
   repetition: '}',
   segment: '~',
   sender: 'ZIRMED',
-  clientId: '314906',
+  clientId: 'SUBMITTER01',
   // {clientId}.{stamp}.{seq}.ELG.271.edi and friends, observed from live traffic.
   fileName({ transaction, clientId, payerId, stamp, seq }) {
     switch (transaction) {

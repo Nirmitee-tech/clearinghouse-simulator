@@ -3,3 +3,5 @@ data/inbound/
 data/outbound/
 data/traffic.jsonl
 *.log
+data/expectations.json
+data/patients.json

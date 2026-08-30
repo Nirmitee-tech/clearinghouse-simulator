@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://www.zirmed.com/Claims/Reports/rptClaimsEditScreenChanges.xslt"?>
+<DOC>
+  <CustomerInformation Name="{{default billingName "PROVIDER"}}" CustID="{{mockReceiver}}">
+    <Claim PatNumber="{{default patientControlNumber "PCN"}}" FacName="" ClaimRefNum="{{respControl}}" PayerID="{{default payerId "00000"}}" PayerName="{{default payerName "MOCK PAYER"}}" Payer="{{default payerName "MOCK PAYER"}} ({{default payerId "00000"}})" EarliestDos="{{default serviceDate (now "YYYYMMDD")}}" PatName="{{upper (default subscriberLast "DOE")}}, {{upper (default subscriberFirst "JOHN")}}" DTEdit="{{now "YYYYMMDD"}}" BillingName="{{upper (default billingName "PROVIDER")}}" RenAttName="{{upper (default renderingLast "PROVIDER")}}" TotalCharges="{{default chargeAmount "0.00"}}" ClaimID="{{respControl}}" BatchID="{{default batchId respControl}}" SeqNum="1">
+      <EditUser FName="{{default editorFirst "Payer"}}" LastInitial="{{default editorInitial "S"}}" UserName="{{default editorName "Payer Staff"}}">
+        <C AuditClaimChangeID="{{respControl}}">
+          <ClaimFields FieldDescription="{{default editedField "Diagnosis Code 1"}}" ClientFieldID="{{default editedFieldId "2300.HI01-2"}}" OldValue="{{default oldValue "F41.9"}}" NewValue="{{default newValue "F41.1"}}" SequenceValue="1" LineItemControlValue="" />
+        </C>
+      </EditUser>
+    </Claim>
+  </CustomerInformation>
+</DOC>

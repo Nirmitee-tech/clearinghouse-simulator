@@ -1,0 +1,34 @@
+description: "Claim edited in the clearinghouse portal — a report arrives describing what someone changed"
+priority: 950
+match:
+  transaction: "837"
+scenario:
+  title: Someone edited the claim in the portal
+  group: Portal reports (XML)
+  outcome: >-
+    The claim was accepted, but a person changed it in the clearinghouse portal before it went to
+    the payer. What you get paid for is no longer exactly what you sent, and only this report says so.
+  technical: >-
+    Prof_{clientId}_{MMDDYYYY}.xml — not X12. Claim / EditUser / ClaimFields tree carrying
+    OldValue and NewValue per changed field, styled by an XSLT hosted at the clearinghouse.
+  seenInProduction: 32 reports in the corpus, alongside the X12 responses
+respond:
+  - transaction: "999"
+    delay: 30s
+    template: 999-generic.hbs
+    values: {ak9: A, ik5: A}
+  - transaction: XML
+    delay: 4m
+    template: claim-edit-report.hbs
+    values:
+      editorFirst: Payer
+      editorInitial: S
+      editorName: Clearinghouse Edit
+      editedField: Diagnosis Code 1
+      editedFieldId: 2300.HI01-2
+      oldValue: F41.9
+      newValue: F41.1
+  - transaction: "277"
+    delay: 6m
+    template: 277ca-generic.hbs
+    values: {stc: "A2:20", action: WQ, payerClaimRef: PYR20260830020}

@@ -153,7 +153,10 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
           const t = setTimeout(() => {
             timers.delete(t);
             try {
-              const content = applyDelimiters(renderer.render(step.template, doc, step.values || {}), profile);
+              const rendered = renderer.render(step.template, doc, step.values || {});
+              // Not every response a clearinghouse sends is X12: portal reports
+              // arrive as XML and must not be run through the delimiter pass.
+              const content = step.transaction === 'XML' ? rendered : applyDelimiters(rendered, profile);
               deliver(step.transaction, content, respFileName(step.transaction, doc), entry);
             } catch (e) {
               entry.deliveries.push({ txn: step.transaction, status: `render error: ${e.message}`, at: new Date().toISOString() });
@@ -193,8 +196,8 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
         memberId: '881234561', subscriberFirst: 'AVERY', subscriberLast: 'TESTFIELD',
         subscriberDob: '19880314', subscriberGender: 'F',
         payerName: 'MERIDIAN HEALTH PLAN', payerId: '00455',
-        providerLast: 'RIVERBEND BEHAVIORAL HEALTH', providerNpi: '1093817465',
-        billingName: 'RIVERBEND BEHAVIORAL HEALTH', billingNpi: '9990000001',
+        providerLast: 'EXAMPLE BEHAVIORAL HEALTH', providerNpi: '1093817465',
+        billingName: 'EXAMPLE BEHAVIORAL HEALTH', billingNpi: '9990000001',
         billingTaxId: '840000000', chargeAmount: '200.00', cpt: '90837',
         serviceDate: '20260830',
       };
@@ -209,7 +212,9 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
             try {
               return { transaction: step.transaction, delay: step.delay || '0s',
                        fileName: respFileName(step.transaction, sample),
-                       edi: applyDelimiters(renderer.render(step.template, sample, step.values || {}), profile) };
+                       edi: step.transaction === 'XML'
+                         ? renderer.render(step.template, sample, step.values || {})
+                         : applyDelimiters(renderer.render(step.template, sample, step.values || {}), profile) };
             } catch (e) {
               return { transaction: step.transaction, delay: step.delay || '0s', error: e.message };
             }
