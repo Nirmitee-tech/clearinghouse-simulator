@@ -13,3 +13,19 @@ respond:
     values:
       rejectCode: "A3:33"
       rejectText: "SUBSCRIBER ID NOT FOUND IN PAYER RECORDS"
+
+scenario:
+  title: "Payer rejects the claim — member ID wrong"
+  group: Claims
+  outcome: "Passes the format check, then the payer rejects it: subscriber not found. Retrying will not fix it — the member ID has to be corrected."
+  patient:
+    firstName: CASEY
+    lastName: NOMATCH
+    dob: "1995-06-21"
+    gender: F
+    memberId: "881234500"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"
+  service:
+    charge: "200.00"
+    cpt: "90837"

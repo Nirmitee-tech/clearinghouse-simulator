@@ -1,144 +1,151 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>clearmock</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root{--bg:#f6f7f9;--panel:#fff;--ink:#151b23;--muted:#5d6b7a;--line:#e1e6ec;--accent:#0f6d8f;--accent-soft:#e4f1f6;
-      --ok:#1f7a4d;--ok-soft:#e5f4ec;--warn:#9a6410;--warn-soft:#fbf0dd;--bad:#a32f2f;--bad-soft:#fbeaea;--code:#f0f3f6}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161c;--panel:#181f27;--ink:#e6edf3;--muted:#93a4b5;
-  --line:#28323d;--accent:#5cc0e0;--accent-soft:#16303a;--ok:#5fce9b;--ok-soft:#14301f;--warn:#e0a95c;--warn-soft:#33280f;
-  --bad:#e58080;--bad-soft:#341d1d;--code:#1e262f}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif}
-header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
-header h1{font-size:1.05rem;margin:0;letter-spacing:-.01em}header h1 span{color:var(--accent)}
-.sub{color:var(--muted);font-size:.83rem}
-.ctrls{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-button,select{font:inherit;font-size:.85rem;padding:5px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
-button:hover{border-color:var(--accent)}button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px 22px 40px;max-width:1500px;margin:0 auto}
-@media(max-width:1000px){main{grid-template-columns:1fr}}
-section{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden}
-h2{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0;padding:12px 16px;border-bottom:1px solid var(--line)}
-.row{padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer}
-.row:hover{background:var(--accent-soft)}.row:last-child{border-bottom:0}
-.row .top{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-.pill{font-size:.7rem;font-weight:700;padding:1px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.8rem}
-.sum{color:var(--muted);font-size:.85rem;margin-top:3px}
-.deliv{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.empty{padding:26px 16px;color:var(--muted);text-align:center;font-size:.9rem}
-pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:11px;overflow-x:auto;font-family:'IBM Plex Mono',monospace;font-size:.76rem;line-height:1.5;margin:10px 16px}
-.stub{padding:11px 16px;border-bottom:1px solid var(--line)}
-.stub:last-child{border-bottom:0}
-.stub .id{font-weight:600;font-size:.88rem}
-.stub .desc{color:var(--muted);font-size:.82rem;margin-top:2px}
-.stub .m{margin-top:5px}
-.trace{margin:8px 16px;font-size:.8rem}
-.trace div{padding:2px 0;color:var(--muted)}
-.trace .pass{color:var(--ok)}.trace .fail{color:var(--bad)}
-.pinbar{display:flex;gap:7px;padding:11px 16px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
-.pinbar input{font:inherit;font-size:.85rem;padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
-.pinbar #pvalue{width:150px}.pinbar #ptimes{width:64px}
+:root{--bg:#fbfbfc;--card:#fff;--ink:#1a1f26;--muted:#67717d;--line:#e3e7eb;--accent:#186a83;--accent-soft:#e8f2f5;--ok:#1c7a52;--code:#f3f5f7}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12161a;--card:#1a2026;--ink:#e7edf2;--muted:#98a4b0;--line:#2a333c;--accent:#63bcd6;--accent-soft:#16303a;--ok:#5cc795;--code:#1f262d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif}
+header{padding:20px 26px 15px;border-bottom:1px solid var(--line);background:var(--card);display:flex;align-items:baseline;gap:13px;flex-wrap:wrap}
+h1{font-size:1.1rem;font-weight:600;margin:0}
+header p{margin:0;color:var(--muted);font-size:.88rem}
+header .sp{margin-left:auto;color:var(--muted);font-size:.82rem}
+select{font:inherit;font-size:.82rem;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+main{max-width:900px;margin:0 auto;padding:22px 26px 60px}
+h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);font-weight:600;margin:0 0 10px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:22px}
+.gname{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:12px 0 5px}
+.gname:first-of-type{margin-top:4px}
+label.opt{display:flex;gap:9px;align-items:flex-start;padding:6px 8px;border-radius:7px;cursor:pointer}
+label.opt:hover{background:var(--accent-soft)}
+label.opt input{margin-top:4px;flex:none}
+label.opt .t{font-weight:500;font-size:.93rem}
+label.opt .o{color:var(--muted);font-size:.85rem}
+.go{margin-top:14px;display:flex;gap:10px;align-items:center}
+button.primary{font:inherit;font-weight:500;padding:8px 16px;border-radius:7px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.primary:disabled{opacity:.45;cursor:not-allowed}
+.pt{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.pt .who{font-weight:600}
+.pt .meta{color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:7px}
+.f{border:1px solid var(--line);border-radius:7px;padding:7px 10px;background:var(--bg);display:flex;align-items:center;gap:8px}
+.f .k{font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block}
+.f .v{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.9rem}
+.f button,.mini{margin-left:auto;flex:none;font:inherit;font-size:.72rem;padding:3px 8px;border-radius:5px;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer}
+.f button:hover,.mini:hover{border-color:var(--accent);color:var(--accent)}
+.f button.done{color:var(--ok);border-color:var(--ok)}
+.binds{margin-top:11px;font-size:.87rem}
+.binds .b{padding:4px 0;color:var(--muted)}
+.binds .b b{color:var(--ink);font-weight:500}
+.acts{margin-top:10px;display:flex;gap:7px}
+.empty{color:var(--muted);font-size:.88rem}
+.log .row{display:flex;gap:10px;align-items:baseline;padding:5px 0;font-size:.85rem;border-bottom:1px solid var(--line)}
+.log .row:last-child{border-bottom:0}
+.log .tag{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--accent);min-width:32px}
+.log .when{color:var(--muted);font-size:.78rem;margin-left:auto;white-space:nowrap}
 </style></head><body>
 <header>
-  <div><h1>clear<span>mock</span></h1><div class="sub">X12 clearinghouse simulator — request in, stubbed response out</div></div>
-  <div class="ctrls">
-    <label class="sub">speed
-      <select id="speed"><option value="1">real time</option><option value="60">60×</option><option value="600" selected>600×</option><option value="10000">instant</option></select>
-    </label>
-    <button id="outage">outage mode</button>
-    <button id="hold">hold responses</button>
-    <button id="release">release held (<span id="heldn">0</span>)</button>
-    <button id="reload">reload stubs</button>
-  </div>
+  <h1>clearmock</h1>
+  <p>Pick what should happen, generate a patient, use those details in your app.</p>
+  <span class="sp">responses arrive <select id="speed">
+    <option value="10000">instantly</option><option value="600" selected>fast</option><option value="60">1 min ≈ real</option><option value="1">real time</option>
+  </select></span>
 </header>
 <main>
-  <section><h2>Traffic</h2><div id="traffic"><div class="empty">No traffic yet — drop a file or POST /api/inject</div></div></section>
-  <section><h2>Stubs — given this request, respond with…</h2><div id="stubs"></div></section>
-  <section>
-    <h2>Pinned scenarios — force the next call to a chosen stub</h2>
-    <div class="pinbar">
-      <select id="pfield"><option value="memberId">memberId</option><option value="patientControlNumber">patientControlNumber</option><option value="payerId">payerId</option><option value="chargeAmount">chargeAmount</option></select>
-      <input id="pvalue" placeholder="value, e.g. 2232">
-      <select id="pstub"></select>
-      <input id="ptimes" type="number" min="1" value="1" title="how many requests this pin covers">
-      <button id="padd" class="on">pin</button>
-      <button id="pclear">clear all</button>
+  <div class="panel">
+    <h2>New test patient</h2>
+    <div id="opts"></div>
+    <div class="go">
+      <button class="primary" id="gen" disabled>Generate patient</button>
+      <span class="empty" id="genhint">Choose one or more outcomes above.</span>
     </div>
-    <div id="overrides"></div>
-  </section>
+  </div>
+
+  <h2>Your test patients</h2>
+  <div id="patients"><div class="empty">None yet.</div></div>
+
+  <div style="margin-top:30px">
+    <h2>Recent requests</h2>
+    <div class="log" id="log"><div class="empty">Nothing yet.</div></div>
+  </div>
 </main>
 <script>
 const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const stepText=r=>`${r.transaction} (+${r.delay||'0s'})`;
-function flowText(s){
-  if(Array.isArray(s.sequence)) return s.sequence.map((alt,i)=>
-    `call ${i+1}: ${(Array.isArray(alt)?alt:[alt]).map(stepText).join(' → ')}`).join('  ·  ')
-    + (s.sequenceKey?`  (per ${s.sequenceKey})`:'');
-  const steps = Array.isArray(s.respond)?s.respond:(s.respond?[s.respond]:[]);
-  return steps.length?'→ '+steps.map(stepText).join(' → '):'→ (no response defined)';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const get=u=>fetch(u).then(r=>r.json());
+let stubs=[];
+
+function field(k,v){return `<div class="f"><div><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>
+  <button data-copy="${esc(v)}">copy</button></div>`;}
+
+function optionRow(s){
+  return `<label class="opt"><input type="checkbox" value="${esc(s.id)}">
+    <span><span class="t">${esc(s.scenario.title)}</span><br><span class="o">${esc(s.scenario.outcome)}</span></span></label>`;
 }
-const pillFor=t=>({'270':'','271':'ok','837':'','999':'warn','277':'warn','835':'ok'}[t]||'');
-async function j(u,o){const r=await fetch(u,o);return r.json()}
-let open=new Set();
+
+function patientCard(p){
+  const dob=p.dob;
+  return `<div class="pt">
+    <div class="who">${esc(p.firstName)} ${esc(p.lastName)}</div>
+    <div class="meta">created ${new Date(p.createdAt).toLocaleString()}</div>
+    <div class="grid">
+      ${field('First name',p.firstName)}${field('Last name',p.lastName)}
+      ${field('Date of birth',dob)}${field('Sex',p.gender)}
+      ${field('Member ID',p.memberId)}${field('Payer',p.payerName)}${field('Payer ID',p.payerId)}
+    </div>
+    <div class="binds">${p.bindings.map(b=>{
+      const names=b.scenarios.map((s,i)=>b.scenarios.length>1?`${i+1}. ${esc(s.title)}`:esc(s.title));
+      const label=b.transaction==='270'?'Insurance check':b.transaction==='837'?'Claim':b.transaction==='276'?'Claim status':'Any request';
+      return `<div class="b"><b>${label}:</b> ${names.join(' → ')}${b.hits?` · used ${b.hits}×`:''}</div>`;
+    }).join('')}</div>
+    <div class="acts">
+      <button class="mini" data-reset="${esc(p.id)}">reset counters</button>
+      <button class="mini" data-del="${esc(p.id)}">delete</button>
+    </div></div>`;
+}
 
 async function draw(){
-  const [tr,st,se,ov]=await Promise.all([j('/api/traffic'),j('/api/stubs'),j('/api/settings'),j('/api/overrides')]);
-  const sel=$('#pstub');
-  if(sel && sel.options.length!==st.length) sel.innerHTML=st.map(s=>`<option value="${esc(s.id)}">${esc(s.id)}</option>`).join('');
-  $('#overrides').innerHTML = ov.length ? ov.map(o=>`
-    <div class="stub"><div class="top">
-      <span class="mono">${esc(o.field)} = ${esc(o.value)}</span>
-      <span class="pill ${o.remaining>0?'warn':''}">${o.remaining>0?`${o.remaining} left`:'consumed'}</span>
-      <span class="sub">→ ${esc(o.stubId)}${o.used?` · used ${o.used}×`:''}</span>
-    </div></div>`).join('') : '<div class="empty">Nothing pinned — requests fall through to the stub library above.</div>';
-  $('#heldn').textContent=se.held||0;
-  $('#outage').classList.toggle('on',!!se.outage);
-  $('#hold').classList.toggle('on',!!se.hold);
-  $('#traffic').innerHTML = tr.length ? tr.map(e=>`
-    <div class="row" data-id="${e.id}">
-      <div class="top"><span class="pill ${pillFor(e.transaction)}">${esc(e.transaction)}</span>
-        <span class="mono">${esc(e.fileName||e.source)}</span>
-        <span class="sub">${new Date(e.at).toLocaleTimeString()}</span>
-        ${e.matchedStub?`<span class="pill ok">${esc(e.matchedStub)}</span>`:'<span class="pill bad">no stub matched</span>'}
-        ${e.viaOverride?'<span class="pill warn">pinned</span>':''}
-        ${e.sequencePosition?`<span class="pill">step ${esc(e.sequencePosition)}</span>`:''}</div>
-      <div class="sum">${esc(e.summary||'unparseable')}</div>
-      <div class="deliv">${(e.deliveries||[]).map(d=>`<span class="pill ${d.status.startsWith('deliver')?'ok':d.status.startsWith('sched')?'':'warn'}">${esc(d.txn)} ${esc(d.status)}</span>`).join('')}</div>
-      ${open.has(String(e.id))?`
-        <div class="trace">${(e.matchTrace||[]).map(t=>`<div class="${t.pass?'pass':'fail'}">${t.pass?'✓':'✗'} ${esc(t.field)} = ${esc(JSON.stringify(t.value))} vs ${esc(JSON.stringify(t.cond))}</div>`).join('')}</div>
-        <pre>${esc((e.raw||'').replace(/~/g,'~\\n'))}</pre>`:''}
-    </div>`).join('') : '<div class="empty">No traffic yet — drop a file or POST /api/inject</div>';
-  $('#stubs').innerHTML = st.map(s=>`
-    <div class="stub">
-      <div class="top"><span class="id">${esc(s.id)}</span>
-        <button data-stub="${esc(s.id)}" class="${s.enabled?'on':''}">${s.enabled?'enabled':'disabled'}</button>
-        <span class="sub">priority ${s.priority}</span></div>
-      <div class="desc">${esc(s.description)}</div>
-      <div class="m mono">match: ${esc(JSON.stringify(s.match))}</div>
-      <div class="m mono sub">${flowText(s)}</div>
-    </div>`).join('');
+  const [st,pats,traffic]=await Promise.all([get('/api/stubs'),get('/api/patients'),get('/api/traffic')]);
+  stubs=st.filter(s=>s.scenario);
+  if(!$('#opts').dataset.built){
+    const groups={};
+    for(const s of stubs)(groups[s.scenario.group||'Other'] ??= []).push(s);
+    $('#opts').innerHTML=Object.entries(groups).map(([g,list])=>
+      `<div class="gname">${esc(g)}</div>`+list.map(optionRow).join('')).join('');
+    $('#opts').dataset.built='1';
+  }
+  $('#patients').innerHTML=pats.length?pats.map(patientCard).join(''):'<div class="empty">None yet.</div>';
+  $('#log').innerHTML=traffic.length?traffic.slice(0,8).map(e=>{
+    const sc=stubs.find(s=>s.id===e.matchedStub)?.scenario;
+    return `<div class="row"><span class="tag">${esc(e.transaction)}</span>
+      <span>${esc(sc?sc.title:(e.matchedStub||'no scenario matched'))}</span>
+      <span class="when">${new Date(e.at).toLocaleTimeString()}</span></div>`;}).join('')
+    :'<div class="empty">Nothing yet.</div>';
 }
-document.addEventListener('click',async ev=>{
-  const row=ev.target.closest('.row');
-  const sb=ev.target.closest('[data-stub]');
-  if(sb){const on=!sb.classList.contains('on');
-    await j(`/api/stubs/${sb.dataset.stub}/toggle`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:on})});return draw();}
-  if(row){const id=row.dataset.id; open.has(id)?open.delete(id):open.add(id); return draw();}
+
+document.addEventListener('change',ev=>{
+  if(ev.target.matches('#opts input')){
+    const n=document.querySelectorAll('#opts input:checked').length;
+    $('#gen').disabled=!n;
+    $('#genhint').textContent=n?`${n} outcome${n>1?'s':''} selected — several for the same request type play out in order.`:'Choose one or more outcomes above.';
+  }
 });
-$('#speed').onchange=e=>j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({speed:Number(e.target.value)})});
-$('#outage').onclick=async()=>{const s=await j('/api/settings');await j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({outage:!s.outage})});draw()};
-$('#hold').onclick=async()=>{const s=await j('/api/settings');await j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hold:!s.hold})});draw()};
-$('#release').onclick=async()=>{await j('/api/release',{method:'POST'});draw()};
-$('#reload').onclick=async()=>{await j('/api/stubs/reload',{method:'POST'});draw()};
-$('#padd').onclick=async()=>{
-  const body={field:$('#pfield').value,value:$('#pvalue').value.trim(),stubId:$('#pstub').value,times:Number($('#ptimes').value)||1};
-  if(!body.value) return $('#pvalue').focus();
-  await j('/api/overrides',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  $('#pvalue').value=''; draw();
+document.addEventListener('click',async ev=>{
+  const c=ev.target.closest('[data-copy]'),d=ev.target.closest('[data-del]'),r=ev.target.closest('[data-reset]');
+  if(c){await navigator.clipboard.writeText(c.dataset.copy);c.textContent='copied';c.classList.add('done');
+    setTimeout(()=>{c.textContent='copy';c.classList.remove('done')},1200);return;}
+  if(d){await fetch('/api/patients/'+d.dataset.del,{method:'DELETE'});return draw();}
+  if(r){await fetch('/api/patients/'+r.dataset.reset+'/reset',{method:'POST'});return draw();}
+});
+$('#gen').onclick=async()=>{
+  const scenarios=[...document.querySelectorAll('#opts input:checked')].map(i=>i.value);
+  await fetch('/api/patients',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenarios})});
+  document.querySelectorAll('#opts input:checked').forEach(i=>i.checked=false);
+  $('#gen').disabled=true; $('#genhint').textContent='Choose one or more outcomes above.';
+  draw();
 };
-$('#pclear').onclick=async()=>{await fetch('/api/overrides',{method:'DELETE'});draw()};
-draw(); setInterval(draw,2000);
+$('#speed').onchange=e=>fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({speed:Number(e.target.value)})});
+draw(); setInterval(draw,3000);
 </script></body></html>

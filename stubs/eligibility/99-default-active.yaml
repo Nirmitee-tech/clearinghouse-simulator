@@ -11,3 +11,16 @@ respond:
     deductible: "1500.00"
     deductibleRemaining: "300.00"
     copay: "30.00"
+
+scenario:
+  title: "Coverage is active"
+  group: Eligibility
+  outcome: "Verification comes back active — plan name, $1,500 deductible with $300 left, $30 copay."
+  patient:
+    firstName: AVERY
+    lastName: TESTFIELD
+    dob: "1988-03-14"
+    gender: F
+    memberId: "881234561"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"

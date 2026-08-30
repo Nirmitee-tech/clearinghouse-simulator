@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseX12 } from './x12.js';
+import { claimRequest } from './expectations.js';
 import { loadStubs, matchStub } from './stubs.js';
 import { makeRenderer } from './render.js';
 
@@ -15,10 +16,10 @@ function parseDelay(v, speed) {
   return (Number(m[1]) * mult) / (speed || 1);
 }
 
-export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }) {
+export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, expectations }) {
   let stubs = loadStubs(stubsDir);
   const renderer = makeRenderer(templatesDir);
-  const settings = { speed: 1, outage: false, hold: false };
+  const settings = { speed: 600, outage: false, hold: false };
   const held = [];   // responses waiting for manual release when settings.hold
   const timers = new Set();
 
@@ -111,10 +112,31 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
     };
 
     if (doc) {
-      const forced = takeOverride(doc);
+      // Precedence: a registered expectation (keyed by business identifier) wins,
+      // then a transient pin, then the stub library's own matching rules.
+      let expected = null;
+      if (expectations) {
+        const claimed = claimRequest(expectations, doc);
+        if (claimed) {
+          const stub = stubs.find(x => x.id === claimed.stubId);
+          if (stub) {
+            expected = {
+              stub,
+              why: [{ field: claimed.record.key.field, cond: { expectation: claimed.record.id, label: claimed.record.label || '' },
+                      value: doc[claimed.record.key.field], pass: true }],
+            };
+            entry.expectationId = claimed.record.id;
+            entry.expectationLabel = claimed.record.label || null;
+          } else {
+            entry.deliveries.push({ txn: '-', status: `expectation ${claimed.record.id} names unknown stub "${claimed.stubId}"`, at: new Date().toISOString() });
+          }
+        }
+      }
+      const forced = expected || takeOverride(doc);
       const { stub, why } = forced || matchStub(stubs, doc);
       entry.matchTrace = why;
-      entry.viaOverride = !!forced;
+      entry.viaExpectation = !!expected;
+      entry.viaOverride = !!forced && !expected;
       if (stub) {
         entry.matchedStub = stub.id;
         const { steps, position } = selectResponse(stub, doc);
@@ -148,7 +170,7 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
         id: s.id, enabled: s.enabled, priority: s.priority,
         description: s.description || '', match: s.match,
         respond: s.respond || null, sequence: s.sequence || null,
-        sequenceKey: s.sequenceKey || null,
+        sequenceKey: s.sequenceKey || null, scenario: s.scenario || null,
       }));
     },
     setStubEnabled(id, enabled) { const s = stubs.find(x => x.id === id); if (s) s.enabled = enabled; return !!s; },

@@ -7,3 +7,16 @@ respond:
   transaction: "271"
   delay: 20s
   template: 271-inactive.hbs
+
+scenario:
+  title: "Coverage has ended"
+  group: Eligibility
+  outcome: "Verification comes back inactive — the policy is terminated, so booking warns or blocks per your settings."
+  patient:
+    firstName: JORDAN
+    lastName: LAPSEWORTH
+    dob: "1979-11-02"
+    gender: M
+    memberId: "881234599"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"

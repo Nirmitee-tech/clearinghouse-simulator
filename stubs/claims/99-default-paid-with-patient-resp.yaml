@@ -16,3 +16,19 @@ respond:
       deductibleApplied: "30.00"
       contractualAdj: "20.00"
       patientResp: "50.00"
+
+scenario:
+  title: "Claim paid, patient owes the deductible"
+  group: Claims
+  outcome: "Accepted, then paid: $150 of a $200 charge. $30 goes to the patient (PR-1 deductible), $20 is written off (CO-45)."
+  patient:
+    firstName: AVERY
+    lastName: TESTFIELD
+    dob: "1988-03-14"
+    gender: F
+    memberId: "881234561"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"
+  service:
+    charge: "200.00"
+    cpt: "90837"

@@ -16,3 +16,19 @@ respond:
     values:
       denialCarc: "197"
       denialRarc: "N130"
+
+scenario:
+  title: "Claim denied — no prior authorization"
+  group: Claims
+  outcome: "Accepted by the payer, then denied in full with CO-197. Nothing paid; the whole charge sits as a denial to work."
+  patient:
+    firstName: AVERY
+    lastName: TESTFIELD
+    dob: "1988-03-14"
+    gender: F
+    memberId: "881234561"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"
+  service:
+    charge: "200.00"
+    cpt: "96156"

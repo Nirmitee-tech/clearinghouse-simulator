@@ -7,3 +7,16 @@ respond:
   transaction: "271"
   delay: 20s
   template: 271-nomatch.hbs
+
+scenario:
+  title: "Payer cannot find this member"
+  group: Eligibility
+  outcome: "Payer answers 'subscriber not found'. Lands in the verification queue as needs-info, not as a coverage answer."
+  patient:
+    firstName: CASEY
+    lastName: NOMATCH
+    dob: "1995-06-21"
+    gender: F
+    memberId: "881234500"
+    payerName: MERIDIAN HEALTH PLAN
+    payerId: "00455"
