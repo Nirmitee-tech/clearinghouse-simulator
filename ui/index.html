@@ -37,6 +37,9 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:8px;paddin
 .trace{margin:8px 16px;font-size:.8rem}
 .trace div{padding:2px 0;color:var(--muted)}
 .trace .pass{color:var(--ok)}.trace .fail{color:var(--bad)}
+.pinbar{display:flex;gap:7px;padding:11px 16px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.pinbar input{font:inherit;font-size:.85rem;padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.pinbar #pvalue{width:150px}.pinbar #ptimes{width:64px}
 </style></head><body>
 <header>
   <div><h1>clear<span>mock</span></h1><div class="sub">X12 clearinghouse simulator — request in, stubbed response out</div></div>
@@ -53,16 +56,44 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:8px;paddin
 <main>
   <section><h2>Traffic</h2><div id="traffic"><div class="empty">No traffic yet — drop a file or POST /api/inject</div></div></section>
   <section><h2>Stubs — given this request, respond with…</h2><div id="stubs"></div></section>
+  <section>
+    <h2>Pinned scenarios — force the next call to a chosen stub</h2>
+    <div class="pinbar">
+      <select id="pfield"><option value="memberId">memberId</option><option value="patientControlNumber">patientControlNumber</option><option value="payerId">payerId</option><option value="chargeAmount">chargeAmount</option></select>
+      <input id="pvalue" placeholder="value, e.g. 2232">
+      <select id="pstub"></select>
+      <input id="ptimes" type="number" min="1" value="1" title="how many requests this pin covers">
+      <button id="padd" class="on">pin</button>
+      <button id="pclear">clear all</button>
+    </div>
+    <div id="overrides"></div>
+  </section>
 </main>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const stepText=r=>`${r.transaction} (+${r.delay||'0s'})`;
+function flowText(s){
+  if(Array.isArray(s.sequence)) return s.sequence.map((alt,i)=>
+    `call ${i+1}: ${(Array.isArray(alt)?alt:[alt]).map(stepText).join(' → ')}`).join('  ·  ')
+    + (s.sequenceKey?`  (per ${s.sequenceKey})`:'');
+  const steps = Array.isArray(s.respond)?s.respond:(s.respond?[s.respond]:[]);
+  return steps.length?'→ '+steps.map(stepText).join(' → '):'→ (no response defined)';
+}
 const pillFor=t=>({'270':'','271':'ok','837':'','999':'warn','277':'warn','835':'ok'}[t]||'');
 async function j(u,o){const r=await fetch(u,o);return r.json()}
 let open=new Set();
 
 async function draw(){
-  const [tr,st,se]=await Promise.all([j('/api/traffic'),j('/api/stubs'),j('/api/settings')]);
+  const [tr,st,se,ov]=await Promise.all([j('/api/traffic'),j('/api/stubs'),j('/api/settings'),j('/api/overrides')]);
+  const sel=$('#pstub');
+  if(sel && sel.options.length!==st.length) sel.innerHTML=st.map(s=>`<option value="${esc(s.id)}">${esc(s.id)}</option>`).join('');
+  $('#overrides').innerHTML = ov.length ? ov.map(o=>`
+    <div class="stub"><div class="top">
+      <span class="mono">${esc(o.field)} = ${esc(o.value)}</span>
+      <span class="pill ${o.remaining>0?'warn':''}">${o.remaining>0?`${o.remaining} left`:'consumed'}</span>
+      <span class="sub">→ ${esc(o.stubId)}${o.used?` · used ${o.used}×`:''}</span>
+    </div></div>`).join('') : '<div class="empty">Nothing pinned — requests fall through to the stub library above.</div>';
   $('#heldn').textContent=se.held||0;
   $('#outage').classList.toggle('on',!!se.outage);
   $('#hold').classList.toggle('on',!!se.hold);
@@ -71,7 +102,9 @@ async function draw(){
       <div class="top"><span class="pill ${pillFor(e.transaction)}">${esc(e.transaction)}</span>
         <span class="mono">${esc(e.fileName||e.source)}</span>
         <span class="sub">${new Date(e.at).toLocaleTimeString()}</span>
-        ${e.matchedStub?`<span class="pill ok">${esc(e.matchedStub)}</span>`:'<span class="pill bad">no stub matched</span>'}</div>
+        ${e.matchedStub?`<span class="pill ok">${esc(e.matchedStub)}</span>`:'<span class="pill bad">no stub matched</span>'}
+        ${e.viaOverride?'<span class="pill warn">pinned</span>':''}
+        ${e.sequencePosition?`<span class="pill">step ${esc(e.sequencePosition)}</span>`:''}</div>
       <div class="sum">${esc(e.summary||'unparseable')}</div>
       <div class="deliv">${(e.deliveries||[]).map(d=>`<span class="pill ${d.status.startsWith('deliver')?'ok':d.status.startsWith('sched')?'':'warn'}">${esc(d.txn)} ${esc(d.status)}</span>`).join('')}</div>
       ${open.has(String(e.id))?`
@@ -85,7 +118,7 @@ async function draw(){
         <span class="sub">priority ${s.priority}</span></div>
       <div class="desc">${esc(s.description)}</div>
       <div class="m mono">match: ${esc(JSON.stringify(s.match))}</div>
-      <div class="m mono sub">→ ${(Array.isArray(s.respond)?s.respond:[s.respond]).map(r=>`${r.transaction} (+${r.delay||'0s'})`).join(' → ')}</div>
+      <div class="m mono sub">${flowText(s)}</div>
     </div>`).join('');
 }
 document.addEventListener('click',async ev=>{
@@ -100,5 +133,12 @@ $('#outage').onclick=async()=>{const s=await j('/api/settings');await j('/api/se
 $('#hold').onclick=async()=>{const s=await j('/api/settings');await j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hold:!s.hold})});draw()};
 $('#release').onclick=async()=>{await j('/api/release',{method:'POST'});draw()};
 $('#reload').onclick=async()=>{await j('/api/stubs/reload',{method:'POST'});draw()};
+$('#padd').onclick=async()=>{
+  const body={field:$('#pfield').value,value:$('#pvalue').value.trim(),stubId:$('#pstub').value,times:Number($('#ptimes').value)||1};
+  if(!body.value) return $('#pvalue').focus();
+  await j('/api/overrides',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  $('#pvalue').value=''; draw();
+};
+$('#pclear').onclick=async()=>{await fetch('/api/overrides',{method:'DELETE'});draw()};
 draw(); setInterval(draw,2000);
 </script></body></html>

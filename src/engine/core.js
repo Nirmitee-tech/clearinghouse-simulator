@@ -22,10 +22,63 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
   const held = [];   // responses waiting for manual release when settings.hold
   const timers = new Set();
 
+  // Scenario overrides: "the next N requests carrying this value get THIS stub",
+  // set at test-setup time instead of by editing the stub library. Lets parallel
+  // tests each pin their own outcome without fighting over global stub state.
+  const overrides = [];      // {id, field, value, stubId, remaining, used}
+  let overrideSeq = 0;
+
+  // Per-key cursors for stubs that answer differently on each successive call
+  // (a claim that is PENDING on the first status inquiry and FINALIZED on the next).
+  const cursors = new Map();
+
+  function takeOverride(doc) {
+    for (const o of overrides) {
+      if (o.remaining <= 0) continue;
+      if (String(doc[o.field] ?? '') !== String(o.value)) continue;
+      const stub = stubs.find(s => s.id === o.stubId);
+      if (!stub) continue;
+      o.remaining--; o.used++;
+      return { stub, why: [{ field: o.field, cond: { override: o.stubId }, value: doc[o.field], pass: true }] };
+    }
+    return null;
+  }
+
+  // A stub may declare `sequence:` — a list of respond-blocks cycled per key.
+  function selectResponse(stub, doc) {
+    if (!Array.isArray(stub.sequence) || !stub.sequence.length) {
+      return { steps: Array.isArray(stub.respond) ? stub.respond : [stub.respond], position: null };
+    }
+    const keyField = stub.sequenceKey || 'patientControlNumber';
+    const key = `${stub.id}::${doc[keyField] ?? 'default'}`;
+    const i = cursors.get(key) ?? 0;
+    cursors.set(key, i + 1);
+    const pick = stub.sequence[Math.min(i, stub.sequence.length - 1)];
+    const steps = Array.isArray(pick) ? pick : [pick];
+    return { steps, position: `${Math.min(i, stub.sequence.length - 1) + 1}/${stub.sequence.length}` };
+  }
+
+  // Every component of a response filename is derived from an inbound file we do
+  // not control, so each one is reduced to a safe charset before it reaches the
+  // filesystem (an ISA13 of "../../x" must not escape the outbound directory).
+  function safeToken(v, max = 20) {
+    return String(v ?? '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, max) || 'X';
+  }
+
   function respFileName(txn, doc) {
     const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
-    const tag = { '271': 'ELG', '999': 'ACK', '277': 'STA', '835': 'ERA' }[txn] || txn;
-    return `${tag}_${txn}_${ts}_${doc.isa13 || 'X'}.${txn === '835' ? '835' : 'txt'}`;
+    const tag = { '271': 'ELG', '999': 'ACK', '277': 'STA', '835': 'ERA' }[txn] || safeToken(txn, 6);
+    const ext = txn === '835' ? '835' : 'txt';
+    return `${tag}_${safeToken(txn, 6)}_${ts}_${safeToken(doc.isa13)}.${ext}`;
+  }
+
+  // Defence in depth: even with sanitised tokens, never write outside outboundDir.
+  function writeOutbound(fileName, content) {
+    const target = path.resolve(outboundDir, fileName);
+    if (!target.startsWith(path.resolve(outboundDir) + path.sep)) {
+      throw new Error(`refusing to write outside outbound directory: ${fileName}`);
+    }
+    fs.writeFileSync(target, content);
   }
 
   function deliver(txn, content, fileName, entry) {
@@ -38,7 +91,7 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
       entry.deliveries.push({ txn, fileName, status: 'held (manual release)', at: new Date().toISOString() });
       return;
     }
-    fs.writeFileSync(path.join(outboundDir, fileName), content);
+    writeOutbound(fileName, content);
     entry.deliveries.push({ txn, fileName, status: 'delivered', at: new Date().toISOString() });
   }
 
@@ -58,11 +111,14 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
     };
 
     if (doc) {
-      const { stub, why } = matchStub(stubs, doc);
+      const forced = takeOverride(doc);
+      const { stub, why } = forced || matchStub(stubs, doc);
       entry.matchTrace = why;
+      entry.viaOverride = !!forced;
       if (stub) {
         entry.matchedStub = stub.id;
-        const steps = Array.isArray(stub.respond) ? stub.respond : [stub.respond];
+        const { steps, position } = selectResponse(stub, doc);
+        entry.sequencePosition = position;
         for (const step of steps) {
           const delayMs = parseDelay(step.delay, settings.speed);
           const t = setTimeout(() => {
@@ -87,12 +143,28 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog }
     handle,
     settings,
     reloadStubs() { stubs = loadStubs(stubsDir); renderer.clearCache(); return stubs.length; },
-    listStubs() { return stubs.map(s => ({ id: s.id, enabled: s.enabled, priority: s.priority, description: s.description || '', match: s.match, respond: s.respond })); },
+    listStubs() {
+      return stubs.map(s => ({
+        id: s.id, enabled: s.enabled, priority: s.priority,
+        description: s.description || '', match: s.match,
+        respond: s.respond || null, sequence: s.sequence || null,
+        sequenceKey: s.sequenceKey || null,
+      }));
+    },
     setStubEnabled(id, enabled) { const s = stubs.find(x => x.id === id); if (s) s.enabled = enabled; return !!s; },
+    addOverride({ field, value, stubId, times }) {
+      const o = { id: ++overrideSeq, field, value: String(value), stubId,
+                  remaining: Number(times) > 0 ? Number(times) : 1, used: 0 };
+      overrides.unshift(o);
+      return o;
+    },
+    listOverrides: () => overrides.slice(),
+    clearOverrides() { const n = overrides.length; overrides.length = 0; return n; },
+    resetCursors() { const n = cursors.size; cursors.clear(); return n; },
     releaseHeld() {
       const n = held.length;
       for (const h of held.splice(0)) {
-        fs.writeFileSync(path.join(outboundDir, h.fileName), h.content);
+        writeOutbound(h.fileName, h.content);
         h.entry.deliveries.push({ txn: h.txn, fileName: h.fileName, status: 'delivered (released)', at: new Date().toISOString() });
       }
       return n;

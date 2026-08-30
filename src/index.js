@@ -55,6 +55,19 @@ app.get('/api/stubs', (_q, res) => res.json(engine.listStubs()));
 app.post('/api/stubs/reload', (_q, res) => res.json({ loaded: engine.reloadStubs() }));
 app.post('/api/stubs/:id(*)/toggle', (q, res) =>
   res.json({ ok: engine.setStubEnabled(q.params.id, !!q.body?.enabled) }));
+// Scenario overrides — pin the next N requests carrying a value to a chosen stub,
+// the way a test sets up its expectation before exercising the system.
+app.get('/api/overrides', (_q, res) => res.json(engine.listOverrides()));
+app.post('/api/overrides', (q, res) => {
+  const { field, value, stubId, times } = q.body || {};
+  if (!field || value === undefined || !stubId) {
+    return res.status(400).json({ error: 'field, value and stubId are required' });
+  }
+  res.json(engine.addOverride({ field, value, stubId, times }));
+});
+app.delete('/api/overrides', (_q, res) => res.json({ cleared: engine.clearOverrides() }));
+app.post('/api/cursors/reset', (_q, res) => res.json({ reset: engine.resetCursors() }));
+
 app.get('/api/settings', (_q, res) => res.json({ ...engine.settings, held: engine.heldCount() }));
 app.post('/api/settings', (q, res) => { Object.assign(engine.settings, q.body || {}); res.json(engine.settings); });
 app.post('/api/release', (_q, res) => res.json({ released: engine.releaseHeld() }));

@@ -75,6 +75,36 @@ Templates are Handlebars over the parsed request, with X12 helpers
 (`controlNumber`, `now`, `money`, `minus`, `pad`, `default`). Every field the
 request carried is available by name — that's what makes responses correlate.
 
+## Pinning a scenario for one call
+
+Editing the stub library to steer a single test is clumsy, so a scenario can be
+**pinned** instead: the next N requests carrying a value get a chosen stub, then
+the pin is consumed and normal matching resumes. Parallel tests can each pin
+their own outcome without fighting over shared state.
+
+```bash
+curl -X POST http://localhost:8090/api/overrides -H 'Content-Type: application/json' \
+     -d '{"field":"memberId","value":"2232","stubId":"claims/02-cpt-90837-denied","times":1}'
+```
+
+## Answering differently on each call
+
+Some behaviour only shows up across repeated calls — a claim that reads PENDING
+on the first status inquiry and FINALIZED on the next. A stub can declare a
+`sequence` instead of a single `respond`, advanced per correlation key:
+
+```yaml
+match: { transaction: "276" }
+sequenceKey: patientControlNumber      # cursor is per claim, not global
+sequence:
+  - { transaction: "277", delay: 10s, template: 277ca-accepted.hbs,
+      values: { statusText: "PENDING ADJUDICATION" } }
+  - { transaction: "277", delay: 10s, template: 277ca-accepted.hbs,
+      values: { statusText: "FINALIZED - PAID" } }
+```
+
+The last entry repeats once the sequence is exhausted.
+
 ## The UI
 
 `http://localhost:8090` — live traffic timeline (click any exchange for the raw
@@ -84,6 +114,8 @@ the stub library with per-stub enable/disable, and global controls:
 - **speed** — run delays in real time, 60×, 600×, or instantly
 - **outage mode** — responses are dropped, so you can exercise retry/backoff paths
 - **hold responses** — queue answers and release them by hand, mid-test
+
+Pinned scenarios are listed and can be created from the same screen.
 
 ## Scenario conventions
 
@@ -112,6 +144,8 @@ Add your own by dropping a YAML file into `stubs/` and clicking **reload stubs**
 | `POST /api/stubs/:id/toggle` | enable/disable one stub |
 | `GET/POST /api/settings` | speed, outage, hold |
 | `POST /api/release` | release held responses |
+| `GET/POST/DELETE /api/overrides` | pin a scenario for the next N matching requests |
+| `POST /api/cursors/reset` | rewind every sequence cursor |
 
 ## Status & scope
 

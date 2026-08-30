@@ -14,7 +14,7 @@ export function loadStubs(stubsDir) {
       else if (/\.ya?ml$/.test(f.name)) {
         try {
           const doc = yaml.load(fs.readFileSync(p, 'utf8'));
-          if (doc && doc.match && doc.respond) {
+          if (doc && doc.match && (doc.respond || doc.sequence)) {
             doc.id = path.relative(stubsDir, p).replace(/\.ya?ml$/, '');
             doc.enabled = doc.enabled !== false;
             doc.priority = doc.priority ?? 100;
