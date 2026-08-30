@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start clearmock, replacing whatever already holds the port. Killing by port
+# Start the simulator, replacing whatever already holds the port. Killing by port
 # rather than by process name: the process argv is just "node src/index.js",
 # so a path-based pkill silently misses it and the restart dies on EADDRINUSE
 # while the old build keeps serving.
@@ -11,8 +11,8 @@ CM_PORT="$PORT" nohup node src/index.js > /tmp/clearmock.log 2>&1 &
 for i in $(seq 1 30); do
   sleep 0.3
   if curl -s -o /dev/null "http://localhost:$PORT/api/stubs"; then
-    echo "clearmock listening on http://localhost:$PORT"
+    echo "Clearinghouse Simulator listening on http://localhost:$PORT"
     exit 0
   fi
 done
-echo "clearmock failed to start:"; tail -5 /tmp/clearmock.log; exit 1
+echo "Clearinghouse Simulator failed to start:"; tail -5 /tmp/clearmock.log; exit 1

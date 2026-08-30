@@ -1,7 +1,7 @@
 {
-  "name": "clearmock",
+  "name": "clearinghouse-simulator",
   "version": "0.1.0",
-  "description": "Open-source X12 clearinghouse simulator — stub-driven request/response virtualization for 270/271, 837/999/277CA/835 flows (Waystar-compatible profile).",
+  "description": "X12 clearinghouse simulator \u2014 a drop-in stand-in for a real clearinghouse SFTP/EDI integration. Pick a scenario, generate a test patient, receive realistic 271 / 999 / 277CA / 835 responses.",
   "license": "MIT",
   "type": "module",
   "main": "src/index.js",
@@ -14,5 +14,30 @@
     "express": "^4.21.2",
     "handlebars": "^4.7.8",
     "js-yaml": "^4.1.0"
-  }
+  },
+  "homepage": "https://nirmitee.io",
+  "author": "Nirmitee.io (https://nirmitee.io)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nirmitee-tech/clearinghouse-simulator.git"
+  },
+  "keywords": [
+    "x12",
+    "edi",
+    "837",
+    "835",
+    "270",
+    "271",
+    "277ca",
+    "999",
+    "278",
+    "clearinghouse",
+    "healthcare",
+    "revenue-cycle",
+    "rcm",
+    "mock-server",
+    "service-virtualization",
+    "testing",
+    "sandbox"
+  ]
 }

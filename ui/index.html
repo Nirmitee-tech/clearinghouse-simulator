@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>clearmock</title>
+<title>Clearinghouse Simulator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{--bg:#fbfbfc;--card:#fff;--ink:#1a1f26;--muted:#67717d;--line:#e3e7eb;--accent:#186a83;--accent-soft:#e8f2f5;--ok:#1c7a52;--code:#f2f5f7}
@@ -10,6 +10,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex San
 header{padding:18px 26px 14px;border-bottom:1px solid var(--line);background:var(--card);display:flex;align-items:baseline;gap:13px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
 h1{font-size:1.08rem;font-weight:600;margin:0}
 header p{margin:0;color:var(--muted);font-size:.87rem}
+header .by{color:var(--accent);text-decoration:none;font-size:.82rem}
+header .by:hover{text-decoration:underline}
 header .sp{margin-left:auto;color:var(--muted);font-size:.82rem}
 input[type=search],select{font:inherit;font-size:.84rem;padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
 input[type=search]{width:330px}
@@ -62,8 +64,9 @@ button.primary:disabled{opacity:.4;cursor:not-allowed}
 .log .when{color:var(--muted);font-size:.77rem;margin-left:auto;white-space:nowrap}
 </style></head><body>
 <header>
-  <h1>clearmock</h1>
+  <h1>Clearinghouse Simulator</h1>
   <p>Pick what should happen, generate a patient, use those details in your app.</p>
+  <a class="by" href="https://nirmitee.io" target="_blank" rel="noopener">by Nirmitee.io</a>
   <span class="sp"><input type="search" id="q" placeholder="filter scenarios…">
     responses arrive <select id="speed">
     <option value="10000">instantly</option><option value="600" selected>fast</option><option value="60">1 min ≈ real</option><option value="1">real time</option>

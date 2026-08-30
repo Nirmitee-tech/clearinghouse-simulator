@@ -1,4 +1,4 @@
-# clearmock — drop-in clearinghouse simulator.
+# Clearinghouse Simulator — a drop-in stand-in for a real clearinghouse.
 # The SFTP container is the wire-level stand-in: the system under test uploads
 # 270/837 files exactly as it would to the real clearinghouse, and polls the
 # same outbound directory for 271/999/277CA/835 responses. The engine watches
@@ -19,9 +19,9 @@ services:
     image: atmoz/sftp:alpine
     ports: ["2222:22"]
     volumes:
-      - edi:/home/clearmock/data
+      - edi:/home/simulator/data
     # user:password:uid:gid — matches the credentials you put in the app's config
-    command: clearmock:clearmock:1001:1001
+    command: simulator:simulator:1001:1001
 
 volumes:
   edi:

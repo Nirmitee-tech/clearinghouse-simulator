@@ -1,4 +1,4 @@
-# clearmock
+# Clearinghouse Simulator
 
 An open-source **X12 clearinghouse simulator**. Point your revenue-cycle
 application at it instead of a real clearinghouse and it answers like one:
@@ -17,9 +17,36 @@ new profile, not a fork.
 
 Clearinghouse integrations are the hardest part of a claims product to test:
 credentials are precious, enrolment takes weeks, responses take days, and
-production traffic is real PHI and real money. clearmock gives you the whole
+production traffic is real PHI and real money. this gives you the whole
 conversation locally, instantly, and deterministically — including the failure
 modes you can't ask a payer to reproduce on demand.
+
+## Using it as a drop-in for a real clearinghouse
+
+The transport is the same one production uses: your application uploads 837 and
+270 files by SFTP and polls a directory for responses. Point its clearinghouse
+settings at this container and nothing else in your code changes — no client
+library, no interface to swap, no build flag.
+
+```yaml
+# whatever your app calls its clearinghouse SFTP settings
+host: localhost
+port: 2222
+username: simulator
+password: simulator
+```
+
+**What has been proven, and what has not.** The wire format is validated against
+a production corpus of 10,432 real response files: byte-identical interchange
+headers, the same delimiters, the same segment order, the same filename shapes
+(see [docs/CORPUS-FINDINGS.md](docs/CORPUS-FINDINGS.md)). Every scenario is
+checked on each run to render structurally valid X12.
+
+What has *not* happened yet is an end-to-end run with a real revenue-cycle
+application consuming these responses through its own parsers and posting logic.
+Until that is done, treat "drop-in" as the design goal rather than a tested
+guarantee — and if you do run one, an issue reporting what broke is the most
+useful contribution this project can get.
 
 ## Quick start
 
@@ -28,7 +55,7 @@ docker compose up          # UI on http://localhost:8090, SFTP on :2222
 ```
 
 Point your application's clearinghouse SFTP settings at `localhost:2222`
-(user `clearmock`, password `clearmock`) and run it normally.
+(user `simulator`, password `simulator`) and run it normally.
 
 No SFTP needed? Inject directly:
 
@@ -174,5 +201,15 @@ validating compliance, so imperfect real-world files still exercise your code.
 
 Not a certification tool, not a payer, and not affiliated with any
 clearinghouse vendor. Test data only — never point it at production PHI.
+
+## Who maintains this
+
+Built and maintained by **[Nirmitee.io](https://nirmitee.io)**, who work on
+healthcare interoperability and revenue-cycle integration — EHR/FHIR platforms,
+clearinghouse connectivity and claims automation. This tool came out of that
+work: testing a claims pipeline without touching a live clearinghouse.
+
+Issues and pull requests are welcome, particularly new scenarios and profiles for
+other clearinghouses.
 
 MIT licensed.
