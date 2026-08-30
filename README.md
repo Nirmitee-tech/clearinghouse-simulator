@@ -7,8 +7,11 @@ send a 270, get a 271; send an 837, get the 999 → 277CA → 835 sequence — w
 matches on (trace numbers, control numbers, patient control numbers, member ids,
 charges) lines up exactly as it would in production.
 
-Ships with a Waystar-shaped profile (SFTP file exchange, `.ELG`/`.835` naming),
-but the transport and file conventions are configuration, not code.
+Ships with a profile matched against a real production corpus — the same
+delimiters (`|` elements, `^` components, `}` repetition), the same interchange
+identity, and the same filename shapes clearinghouse traffic actually uses.
+Transport and file conventions are configuration, so a second clearinghouse is a
+new profile, not a fork.
 
 ## Why
 
@@ -150,9 +153,22 @@ response before you wire anything up.
 | `GET/POST/DELETE /api/overrides` | pin a scenario for the next N matching requests |
 | `POST /api/cursors/reset` | rewind every sequence cursor |
 
+## Fidelity
+
+The wire format and 119 scenarios were validated against a production corpus of
+10,432 real response files. That work is written up in
+[docs/CORPUS-FINDINGS.md](docs/CORPUS-FINDINGS.md) — including several places
+where textbook X12 and real clearinghouse traffic disagree, and the codes that
+dominate real files but appear in no tutorial. Scenarios carrying a
+`seenInProduction` note are labelled in the UI with how often they occurred.
+
+The corpus itself is private healthcare data and is not part of this repository.
+
 ## Status & scope
 
-Early but working: 270/271, 837/999/277CA/835 flows end to end. The X12 reader
+Working end to end across 270/271 eligibility, 278 prior authorization,
+837 → TA1/999 → 277CA → 835 claim flows, 276/277 claim status, and the
+non-X12 portal report channel. The X12 reader
 is deliberately lenient — it reads envelopes and correlation fields rather than
 validating compliance, so imperfect real-world files still exercise your code.
 
