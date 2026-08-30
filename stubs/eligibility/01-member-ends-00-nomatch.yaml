@@ -1,0 +1,9 @@
+description: "Member ID ending 00 → payer cannot find the subscriber (AAA*Y**75). Drives NeedsInfo / unmatched handling."
+priority: 10
+match:
+  transaction: "270"
+  memberId: { endsWith: "00" }
+respond:
+  transaction: "271"
+  delay: 20s
+  template: 271-nomatch.hbs

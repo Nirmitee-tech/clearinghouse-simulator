@@ -1,0 +1,18 @@
+description: "Any claim carrying a 96156 line → full denial CO-197 (prior authorization absent)."
+priority: 30
+match:
+  transaction: "837"
+  raw: { contains: "HC:96156" }
+respond:
+  - transaction: "999"
+    delay: 30s
+    template: 999-accept.hbs
+  - transaction: "277"
+    delay: 2m
+    template: 277ca-accepted.hbs
+  - transaction: "835"
+    delay: 10m
+    template: 835-denied.hbs
+    values:
+      denialCarc: "197"
+      denialRarc: "N130"

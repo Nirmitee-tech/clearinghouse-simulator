@@ -1,0 +1,18 @@
+{
+  "name": "clearmock",
+  "version": "0.1.0",
+  "description": "Open-source X12 clearinghouse simulator — stub-driven request/response virtualization for 270/271, 837/999/277CA/835 flows (Waystar-compatible profile).",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "express": "^4.21.2",
+    "handlebars": "^4.7.8",
+    "js-yaml": "^4.1.0"
+  }
+}

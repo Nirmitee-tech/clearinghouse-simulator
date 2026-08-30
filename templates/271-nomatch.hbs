@@ -1,0 +1,15 @@
+ISA*00*          *00*          *ZZ*{{padRight (default isa08 "CLEARMOCK") 15}}*ZZ*{{padRight (default isa06 "SUBMITTER") 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
+GS*HB*{{default gs03 "CLEARMOCK"}}*{{default gs02 "SUBMITTER"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X279A1~
+ST*271*0001*005010X279A1~
+BHT*0022*11*{{default traceNumber "TM0"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}~
+HL*1**20*1~
+NM1*PR*2*{{default payerName "MOCK PAYER"}}*****PI*{{default payerId "00000"}}~
+HL*2*1*21*1~
+NM1*1P*2*{{default providerLast "PROVIDER"}}*****XX*{{default providerNpi "1999999984"}}~
+HL*3*2*22*0~
+TRN*2*{{default traceNumber "TM0"}}*{{default payerId "00000"}}~
+NM1*IL*1*{{upper (default subscriberLast "DOE")}}*{{upper (default subscriberFirst "JOHN")}}****MI*{{default memberId "000000000"}}~
+AAA*Y**75*C~
+SE*12*0001~
+GE*1*{{respControl}}~
+IEA*1*{{respControl}}~

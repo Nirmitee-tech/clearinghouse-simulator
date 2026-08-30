@@ -1,0 +1,15 @@
+description: "Small claims (< $100) pay in full — clean happy path with no patient responsibility."
+priority: 800
+match:
+  transaction: "837"
+  chargeAmount: { lt: 100 }
+respond:
+  - transaction: "999"
+    delay: 30s
+    template: 999-accept.hbs
+  - transaction: "277"
+    delay: 2m
+    template: 277ca-accepted.hbs
+  - transaction: "835"
+    delay: 8m
+    template: 835-paid-full.hbs

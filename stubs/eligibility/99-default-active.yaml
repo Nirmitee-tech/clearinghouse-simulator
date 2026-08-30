@@ -1,0 +1,13 @@
+description: "Default eligibility answer: active coverage with deductible remaining and a copay."
+priority: 900
+match:
+  transaction: "270"
+respond:
+  transaction: "271"
+  delay: 30s
+  template: 271-active.hbs
+  values:
+    planName: "MOCK BEHAVIORAL HEALTH PPO"
+    deductible: "1500.00"
+    deductibleRemaining: "300.00"
+    copay: "30.00"

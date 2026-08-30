@@ -1,0 +1,13 @@
+description: "Charge 999.00 → 999 syntax rejection. The file never reaches the payer."
+priority: 10
+match:
+  transaction: "837"
+  chargeAmount: "999"
+respond:
+  transaction: "999"
+  delay: 30s
+  template: 999-reject.hbs
+  values:
+    badSegment: "CLM"
+    badSegPos: "22"
+    badElement: "2"

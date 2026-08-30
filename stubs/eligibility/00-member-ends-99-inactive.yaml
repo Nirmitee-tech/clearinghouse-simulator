@@ -1,0 +1,9 @@
+description: "Member ID ending 99 → coverage terminated (EB*6). Exercises the 'expired policy' path."
+priority: 10
+match:
+  transaction: "270"
+  memberId: { endsWith: "99" }
+respond:
+  transaction: "271"
+  delay: 20s
+  template: 271-inactive.hbs

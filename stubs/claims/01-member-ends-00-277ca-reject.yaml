@@ -1,0 +1,15 @@
+description: "Member ID ending 00 → 999 accepted, then 277CA rejects: subscriber not found. The classic 'retry cannot fix data' case."
+priority: 20
+match:
+  transaction: "837"
+  memberId: { endsWith: "00" }
+respond:
+  - transaction: "999"
+    delay: 30s
+    template: 999-accept.hbs
+  - transaction: "277"
+    delay: 3m
+    template: 277ca-rejected.hbs
+    values:
+      rejectCode: "A3:33"
+      rejectText: "SUBSCRIBER ID NOT FOUND IN PAYER RECORDS"

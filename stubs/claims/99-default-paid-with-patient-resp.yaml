@@ -1,0 +1,18 @@
+description: "Default claim flow: 999 accept → 277CA accept → 835 paying charge minus $50, split PR-1 deductible $30 + CO-45 write-off $20."
+priority: 900
+match:
+  transaction: "837"
+respond:
+  - transaction: "999"
+    delay: 30s
+    template: 999-accept.hbs
+  - transaction: "277"
+    delay: 2m
+    template: 277ca-accepted.hbs
+  - transaction: "835"
+    delay: 10m
+    template: 835-paid-with-patient-resp.hbs
+    values:
+      deductibleApplied: "30.00"
+      contractualAdj: "20.00"
+      patientResp: "50.00"

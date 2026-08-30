@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>clearmock</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#151b23;--muted:#5d6b7a;--line:#e1e6ec;--accent:#0f6d8f;--accent-soft:#e4f1f6;
+      --ok:#1f7a4d;--ok-soft:#e5f4ec;--warn:#9a6410;--warn-soft:#fbf0dd;--bad:#a32f2f;--bad-soft:#fbeaea;--code:#f0f3f6}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161c;--panel:#181f27;--ink:#e6edf3;--muted:#93a4b5;
+  --line:#28323d;--accent:#5cc0e0;--accent-soft:#16303a;--ok:#5fce9b;--ok-soft:#14301f;--warn:#e0a95c;--warn-soft:#33280f;
+  --bad:#e58080;--bad-soft:#341d1d;--code:#1e262f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif}
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{font-size:1.05rem;margin:0;letter-spacing:-.01em}header h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:.83rem}
+.ctrls{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select{font:inherit;font-size:.85rem;padding:5px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--accent)}button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px 22px 40px;max-width:1500px;margin:0 auto}
+@media(max-width:1000px){main{grid-template-columns:1fr}}
+section{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+h2{font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0;padding:12px 16px;border-bottom:1px solid var(--line)}
+.row{padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:hover{background:var(--accent-soft)}.row:last-child{border-bottom:0}
+.row .top{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.pill{font-size:.7rem;font-weight:700;padding:1px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.8rem}
+.sum{color:var(--muted);font-size:.85rem;margin-top:3px}
+.deliv{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.empty{padding:26px 16px;color:var(--muted);text-align:center;font-size:.9rem}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:11px;overflow-x:auto;font-family:'IBM Plex Mono',monospace;font-size:.76rem;line-height:1.5;margin:10px 16px}
+.stub{padding:11px 16px;border-bottom:1px solid var(--line)}
+.stub:last-child{border-bottom:0}
+.stub .id{font-weight:600;font-size:.88rem}
+.stub .desc{color:var(--muted);font-size:.82rem;margin-top:2px}
+.stub .m{margin-top:5px}
+.trace{margin:8px 16px;font-size:.8rem}
+.trace div{padding:2px 0;color:var(--muted)}
+.trace .pass{color:var(--ok)}.trace .fail{color:var(--bad)}
+</style></head><body>
+<header>
+  <div><h1>clear<span>mock</span></h1><div class="sub">X12 clearinghouse simulator — request in, stubbed response out</div></div>
+  <div class="ctrls">
+    <label class="sub">speed
+      <select id="speed"><option value="1">real time</option><option value="60">60×</option><option value="600" selected>600×</option><option value="10000">instant</option></select>
+    </label>
+    <button id="outage">outage mode</button>
+    <button id="hold">hold responses</button>
+    <button id="release">release held (<span id="heldn">0</span>)</button>
+    <button id="reload">reload stubs</button>
+  </div>
+</header>
+<main>
+  <section><h2>Traffic</h2><div id="traffic"><div class="empty">No traffic yet — drop a file or POST /api/inject</div></div></section>
+  <section><h2>Stubs — given this request, respond with…</h2><div id="stubs"></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const pillFor=t=>({'270':'','271':'ok','837':'','999':'warn','277':'warn','835':'ok'}[t]||'');
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+let open=new Set();
+
+async function draw(){
+  const [tr,st,se]=await Promise.all([j('/api/traffic'),j('/api/stubs'),j('/api/settings')]);
+  $('#heldn').textContent=se.held||0;
+  $('#outage').classList.toggle('on',!!se.outage);
+  $('#hold').classList.toggle('on',!!se.hold);
+  $('#traffic').innerHTML = tr.length ? tr.map(e=>`
+    <div class="row" data-id="${e.id}">
+      <div class="top"><span class="pill ${pillFor(e.transaction)}">${esc(e.transaction)}</span>
+        <span class="mono">${esc(e.fileName||e.source)}</span>
+        <span class="sub">${new Date(e.at).toLocaleTimeString()}</span>
+        ${e.matchedStub?`<span class="pill ok">${esc(e.matchedStub)}</span>`:'<span class="pill bad">no stub matched</span>'}</div>
+      <div class="sum">${esc(e.summary||'unparseable')}</div>
+      <div class="deliv">${(e.deliveries||[]).map(d=>`<span class="pill ${d.status.startsWith('deliver')?'ok':d.status.startsWith('sched')?'':'warn'}">${esc(d.txn)} ${esc(d.status)}</span>`).join('')}</div>
+      ${open.has(String(e.id))?`
+        <div class="trace">${(e.matchTrace||[]).map(t=>`<div class="${t.pass?'pass':'fail'}">${t.pass?'✓':'✗'} ${esc(t.field)} = ${esc(JSON.stringify(t.value))} vs ${esc(JSON.stringify(t.cond))}</div>`).join('')}</div>
+        <pre>${esc((e.raw||'').replace(/~/g,'~\\n'))}</pre>`:''}
+    </div>`).join('') : '<div class="empty">No traffic yet — drop a file or POST /api/inject</div>';
+  $('#stubs').innerHTML = st.map(s=>`
+    <div class="stub">
+      <div class="top"><span class="id">${esc(s.id)}</span>
+        <button data-stub="${esc(s.id)}" class="${s.enabled?'on':''}">${s.enabled?'enabled':'disabled'}</button>
+        <span class="sub">priority ${s.priority}</span></div>
+      <div class="desc">${esc(s.description)}</div>
+      <div class="m mono">match: ${esc(JSON.stringify(s.match))}</div>
+      <div class="m mono sub">→ ${(Array.isArray(s.respond)?s.respond:[s.respond]).map(r=>`${r.transaction} (+${r.delay||'0s'})`).join(' → ')}</div>
+    </div>`).join('');
+}
+document.addEventListener('click',async ev=>{
+  const row=ev.target.closest('.row');
+  const sb=ev.target.closest('[data-stub]');
+  if(sb){const on=!sb.classList.contains('on');
+    await j(`/api/stubs/${sb.dataset.stub}/toggle`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:on})});return draw();}
+  if(row){const id=row.dataset.id; open.has(id)?open.delete(id):open.add(id); return draw();}
+});
+$('#speed').onchange=e=>j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({speed:Number(e.target.value)})});
+$('#outage').onclick=async()=>{const s=await j('/api/settings');await j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({outage:!s.outage})});draw()};
+$('#hold').onclick=async()=>{const s=await j('/api/settings');await j('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hold:!s.hold})});draw()};
+$('#release').onclick=async()=>{await j('/api/release',{method:'POST'});draw()};
+$('#reload').onclick=async()=>{await j('/api/stubs/reload',{method:'POST'});draw()};
+draw(); setInterval(draw,2000);
+</script></body></html>
