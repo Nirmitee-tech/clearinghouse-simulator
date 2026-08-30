@@ -1,0 +1,19 @@
+description: Medicaid — spend-down not met — Medicaid coverage only starts once the patient has spent
+  a set amount themselves this month.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Medicaid — spend-down not met
+  group: Eligibility (270 → 271)
+  outcome: Medicaid coverage only starts once the patient has spent a set amount themselves this month.
+  technical: EB*1 with EB*C spend-down amount outstanding · MSG naming the monthly share of cost
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MEDICAID
+    - EB*C*IND*30*****450.00
+    - MSG*SPEND DOWN OF 450.00 NOT YET MET FOR THIS MONTH

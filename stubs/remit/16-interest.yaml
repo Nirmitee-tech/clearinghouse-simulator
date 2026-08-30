@@ -1,0 +1,40 @@
+description: Paid with interest for late payment — The payer paid late and added interest. The interest
+  is not claim money and must not be posted against the claim.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid with interest for late payment
+  group: Remittance (835)
+  outcome: The payer paid late and added interest. The interest is not claim money and must not be posted
+    against the claim.
+  technical: Claim paid normally · PLB*L6 (interest owed) as a negative provider-level adjustment increasing
+    the cheque
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '152.50'
+    allowedAmount: '180.00'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00
+    plb:
+    - PLB*{{default billingNpi "1999999984"}}*20261231*L6*-2.50

@@ -1,0 +1,18 @@
+description: Interchange rejected (TA1) — The file was malformed at the envelope level — wrong control
+  numbers or a broken header. Nothing inside was read.
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: Interchange rejected (TA1)
+  group: File acknowledgement (TA1 / 999)
+  outcome: The file was malformed at the envelope level — wrong control numbers or a broken header. Nothing
+    inside was read.
+  technical: TA1 with TA104=R (rejected) and TA105=024 (invalid interchange content)
+respond:
+  transaction: TA1
+  delay: 10s
+  template: ta1.hbs
+  values:
+    ta104: R
+    ta105: '024'

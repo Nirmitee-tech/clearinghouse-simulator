@@ -1,0 +1,24 @@
+description: File rejected (999) — The file failed the format check and never reached the payer. Nothing
+  was submitted — this must be fixed and resent.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: File rejected (999)
+  group: File acknowledgement (TA1 / 999)
+  outcome: The file failed the format check and never reached the payer. Nothing was submitted — this
+    must be fixed and resent.
+  technical: AK9*R (rejected) · IK5*R with error 5 · IK3/IK4 pointing at the offending segment and element
+respond:
+  transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: R
+    ik5: R
+    ik5Codes: '5'
+    accepted: '0'
+    ik:
+    - IK3*CLM*22*2300*8
+    - CTX*SITUATIONAL TRIGGER*CLM*22*2300
+    - IK4*2**1

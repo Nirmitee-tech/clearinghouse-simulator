@@ -35,6 +35,7 @@ export function parseX12(raw) {
   if (doc.transaction === '270') Object.assign(doc, extract270(segments));
   if (doc.transaction === '837') Object.assign(doc, extract837(segments));
   if (doc.transaction === '276') Object.assign(doc, extract276(segments));
+  if (doc.transaction === '278') Object.assign(doc, extract278(segments));
   return doc;
 }
 
@@ -89,11 +90,44 @@ function extract837(segments) {
   return out;
 }
 
+// The subscriber loop identifies the member on every transaction that carries
+// one — without it a request cannot be matched to a registered test patient.
+function subscriber(segments, out) {
+  const il = seg(segments, 'NM1').find(s => s[1] === 'IL');
+  if (il) {
+    out.subscriberLast = il[3] || '';
+    out.subscriberFirst = il[4] || '';
+    out.memberId = il[9] || '';
+  }
+  const dmg = seg(segments, 'DMG')[0];
+  if (dmg) { out.subscriberDob = dmg[2] || ''; out.subscriberGender = dmg[3] || ''; }
+  return out;
+}
+
 function extract276(segments) {
   const out = {};
   const trn = seg(segments, 'TRN')[0];
   if (trn) out.traceNumber = trn[2] || '';
   const clm = seg(segments, 'REF').find(s => s[1] === 'EJ');   // patient control number
   if (clm) out.patientControlNumber = clm[2] || '';
-  return out;
+  const pr = seg(segments, 'NM1').find(s => s[1] === 'PR');
+  if (pr) { out.payerName = pr[3] || ''; out.payerId = pr[9] || ''; }
+  const b41 = seg(segments, 'NM1').find(s => s[1] === '41');
+  if (b41) { out.billingName = b41[3] || ''; out.billingNpi = b41[9] || ''; }
+  return subscriber(segments, out);
+}
+
+function extract278(segments) {
+  const out = {};
+  const bht = seg(segments, 'BHT')[0];
+  if (bht) out.traceNumber = bht[3] || '';
+  const x3 = seg(segments, 'NM1').find(s => s[1] === 'X3');   // utilization management org
+  if (x3) { out.payerName = x3[3] || ''; out.payerId = x3[9] || ''; }
+  const p1 = seg(segments, 'NM1').find(s => s[1] === '1P');
+  if (p1) { out.providerLast = p1[3] || ''; out.providerNpi = p1[9] || ''; }
+  const um = seg(segments, 'UM')[0];
+  if (um) { out.requestCategory = um[1] || ''; out.serviceType = um[3] || ''; }
+  const dtp = seg(segments, 'DTP').find(s => s[1] === '472');
+  if (dtp) out.serviceDate = dtp[3] || '';
+  return subscriber(segments, out);
 }

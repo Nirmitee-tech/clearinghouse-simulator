@@ -1,0 +1,19 @@
+description: Active — referral required — Covered only if a referral is on file. Without one the claim
+  denies even though eligibility looks fine.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — referral required
+  group: Eligibility (270 → 271)
+  outcome: Covered only if a referral is on file. Without one the claim denies even though eligibility
+    looks fine.
+  technical: EB*1 with EB11=Y and MSG naming the referral requirement
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**HMO PLAN*****Y
+    - MSG*PCP REFERRAL REQUIRED PRIOR TO BEHAVIORAL HEALTH SERVICES

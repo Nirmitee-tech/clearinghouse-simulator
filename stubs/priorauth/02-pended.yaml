@@ -1,0 +1,19 @@
+description: Authorisation pended for review — Neither approved nor refused — a human at the payer is
+  reviewing it. Do not treat this as a decision.
+priority: 950
+match:
+  transaction: '278'
+scenario:
+  title: Authorisation pended for review
+  group: Prior authorization (278)
+  outcome: Neither approved nor refused — a human at the payer is reviewing it. Do not treat this as a
+    decision.
+  technical: HCR*A4 (pended) · no certification number yet · the request must be polled or awaited
+respond:
+  transaction: '278'
+  delay: 2m
+  template: 278-response.hbs
+  values:
+    hcr: A4
+    msg:
+    - MSG*PENDED FOR CLINICAL REVIEW - DETERMINATION WITHIN 14 DAYS

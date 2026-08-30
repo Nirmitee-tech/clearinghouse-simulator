@@ -1,0 +1,21 @@
+description: File rejected — bad envelope — The functional group header was wrong, so nothing inside could
+  be processed.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: File rejected — bad envelope
+  group: File acknowledgement (TA1 / 999)
+  outcome: The functional group header was wrong, so nothing inside could be processed.
+  technical: AK9*R with IK3 against the GS/ST envelope · error code 1 (unrecognised segment)
+respond:
+  transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: R
+    ik5: R
+    ik5Codes: '1'
+    accepted: '0'
+    ik:
+    - IK3*GS*1**1

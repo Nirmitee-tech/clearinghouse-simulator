@@ -1,0 +1,19 @@
+description: Managed Medicaid — no patient charge — Covered in full with nothing collectable from the
+  patient. Charging this patient would breach the Medicaid agreement.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Managed Medicaid — no patient charge
+  group: Eligibility (270 → 271)
+  outcome: Covered in full with nothing collectable from the patient. Charging this patient would breach
+    the Medicaid agreement.
+  technical: EB*1 for Medicaid managed care · EB*B copay 0.00 · no deductible segment
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**COLORADO MANAGED MEDICAID
+    - EB*B*IND*98***27*0.00

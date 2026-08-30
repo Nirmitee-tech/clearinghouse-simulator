@@ -1,0 +1,19 @@
+description: Claim not on file — The payer has never seen it. Either it never arrived or it was rejected
+  earlier — check the acknowledgements.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Claim not on file
+  group: Claim status (276 → 277)
+  outcome: The payer has never seen it. Either it never arrived or it was rejected earlier — check the
+    acknowledgements.
+  technical: STC*A4:35 (claim not found) · no payer claim reference
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: A4:35
+    paidAmount: '0.00'
+    stcText: CLAIM NOT FOUND ON PAYER FILE

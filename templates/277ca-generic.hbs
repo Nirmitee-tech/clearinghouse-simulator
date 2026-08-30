@@ -1,0 +1,20 @@
+ISA*00*          *00*          *ZZ*{{padRight (default isa08 "CLEARMOCK") 15}}*ZZ*{{padRight (default isa06 "SUBMITTER") 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
+GS*HN*{{default gs03 "CLEARMOCK"}}*{{default gs02 "SUBMITTER"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X214~
+ST*277*0001*005010X214~
+BHT*0085*08*{{default patientControlNumber "PCN"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*TH~
+HL*1**20*1~
+NM1*PR*2*{{default payerName "MOCK PAYER"}}*****PI*{{default payerId "00000"}}~
+HL*2*1*21*1~
+NM1*41*2*{{default billingName "PROVIDER"}}*****46*{{default billingNpi "1999999984"}}~
+HL*3*2*19*1~
+NM1*85*2*{{default billingName "PROVIDER"}}*****XX*{{default billingNpi "1999999984"}}~
+HL*4*3*PT~
+NM1*QC*1*{{upper (default subscriberLast "DOE")}}*{{upper (default subscriberFirst "JOHN")}}~
+TRN*2*{{default patientControlNumber "PCN"}}~
+STC*{{default stc "A2:20"}}*{{now "YYYYMMDD"}}*{{default action "WQ"}}*{{default chargeAmount "0.00"}}{{#if stcText}}***{{stcText}}{{/if}}~
+{{#if payerClaimRef}}REF*1K*{{payerClaimRef}}~
+{{/if}}
+DTP*472*D8*{{default serviceDate (now "YYYYMMDD")}}~
+SE*16*0001~
+GE*1*{{respControl}}~
+IEA*1*{{respControl}}~

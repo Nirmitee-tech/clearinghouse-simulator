@@ -117,27 +117,30 @@ the stub library with per-stub enable/disable, and global controls:
 
 Pinned scenarios are listed and can be created from the same screen.
 
-## Scenario conventions
+## The scenario library
 
-The bundled stubs use magic values so a tester can steer outcomes from the
-application's own UI, with no clearinghouse-side setup:
+88 scenarios across the full transaction set, each stating both what the practice
+sees and what comes back on the wire:
 
-| Send | Get |
+| Group | Covers |
 |---|---|
-| member id ending `99` | coverage inactive (`EB*6`) |
-| member id ending `00` (270) | subscriber not found (`AAA*Y**75`) |
-| member id ending `00` (837) | 999 accepted, then 277CA rejection |
-| charge `999.00` | 999 syntax rejection — never reaches the payer |
-| a `96156` service line | denial `CO-197` (no prior authorization) |
-| charge under `$100` | paid in full |
-| anything else | paid, minus `PR-1 $30` deductible and `CO-45 $20` write-off |
+| Eligibility (270 → 271) | active, deductible states, out-of-network, terminated, not-yet-effective, visit limits, carve-outs, COBRA, Medicaid spend-down, Medicare primary, and the `AAA` rejections (member not found, bad ID, name/DOB mismatch, payer down, provider not on file) |
+| Prior authorization (278) | approved, partial, pended, denied, not required, contact payer |
+| File acknowledgement (TA1 / 999) | interchange accept and reject, 999 accept, accept-with-warnings, and rejects at segment, element and envelope level |
+| Claim acknowledgement (277CA) | accepted and forwarded, plus rejections for subscriber, NPI, procedure, diagnosis, dates, duplicates, enrolment and payer routing |
+| Remittance (835) | paid in full, deductible / coinsurance / copay, contractual write-off, partial line payment, bundling, sequestration, secondary COB, capitation, interest, corrected claims, reversals and offsets, predetermination, and the common denials (no auth, non-covered, timely filing, missing info, duplicate, medical necessity, provider not eligible, wrong payer) |
+| Claim status (276 → 277) | pending, pending-for-records, finalised paid / part-paid / denied, returned, received-not-worked, not on file |
 
-Add your own by dropping a YAML file into `stubs/` and clicking **reload stubs**.
+Every scenario names its own X12 detail — `CAS*CO*197` with `LQ*HE*N130`, `AAA*Y**75*C`,
+`STC*A7:21:82`, `CLP02=22` with `PLB*WO` — and the UI can render the exact
+response before you wire anything up.
 
 ## API
 
 | Endpoint | Purpose |
 |---|---|
+| `GET/POST/DELETE /api/patients` | generate a test patient bound to chosen scenarios |
+| `GET /api/stubs/:id/preview` | the exact X12 a scenario returns |
 | `POST /api/inject` | submit raw X12 without SFTP |
 | `GET /api/traffic` | every exchange, newest first |
 | `GET /api/stubs` · `POST /api/stubs/reload` | stub library |

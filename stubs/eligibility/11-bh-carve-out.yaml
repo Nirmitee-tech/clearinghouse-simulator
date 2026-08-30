@@ -1,0 +1,21 @@
+description: Behavioural health is carved out — Medical is covered here, but behavioural health is administered
+  by a different company. Claims must go to that payer instead.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Behavioural health is carved out
+  group: Eligibility (270 → 271)
+  outcome: Medical is covered here, but behavioural health is administered by a different company. Claims
+    must go to that payer instead.
+  technical: EB*1 for medical · EB*R (other or additional payer) naming the carve-out administrator ·
+    MSG with routing instruction
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MEDICAL PLAN
+    - EB*R*IND*MH**BEHAVIORAL HEALTH PARTNERS
+    - MSG*MENTAL HEALTH BENEFITS ADMINISTERED BY BEHAVIORAL HEALTH PARTNERS - SUBMIT TO PAYER ID 88999

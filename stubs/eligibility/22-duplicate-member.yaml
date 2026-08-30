@@ -1,0 +1,17 @@
+description: More than one member matches — The payer found several people fitting these details and will
+  not guess. More identifying data is needed.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: More than one member matches
+  group: Eligibility (270 → 271)
+  outcome: The payer found several people fitting these details and will not guess. More identifying data
+    is needed.
+  technical: AAA*Y**76*C (duplicate subscriber/insured id number)
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**76*C

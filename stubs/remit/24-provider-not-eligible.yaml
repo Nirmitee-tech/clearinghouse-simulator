@@ -1,0 +1,36 @@
+description: Denied — provider not eligible for this service — The clinician’s credential does not permit
+  this service for this payer — a credentialing problem wearing a billing costume.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — provider not eligible for this service
+  group: Remittance (835)
+  outcome: The clinician’s credential does not permit this service for this payer — a credentialing problem
+    wearing a billing costume.
+  technical: CLP02=4 · CAS*CO*B7 (provider not certified/eligible to be paid for this procedure on this
+    date)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*CO*B7*{{chargeAmount}}

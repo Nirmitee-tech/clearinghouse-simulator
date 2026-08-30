@@ -1,0 +1,36 @@
+description: Forwarded to another payer — The payer processed it and passed it to the next one. No money
+  yet — do not treat it as a denial.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Forwarded to another payer
+  group: Remittance (835)
+  outcome: The payer processed it and passed it to the next one. No money yet — do not treat it as a denial.
+  technical: CLP02=19 (processed as primary, forwarded to additional payer) · CAS*OA*23
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '19'
+    paidAmount: '120.00'
+    patientResp: '0.00'
+    checkAmount: '120.00'
+    cas:
+    - CAS*OA*23*60.00
+    extraLines:
+    - MOA***MA18

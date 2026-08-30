@@ -1,0 +1,19 @@
+description: Authorisation not required — No authorisation is needed for this service, so proceed. Keep
+  the answer — it is your evidence if a claim later denies.
+priority: 950
+match:
+  transaction: '278'
+scenario:
+  title: Authorisation not required
+  group: Prior authorization (278)
+  outcome: No authorisation is needed for this service, so proceed. Keep the answer — it is your evidence
+    if a claim later denies.
+  technical: HCR*A6 (modified/no action required) with MSG confirming authorisation is not required
+respond:
+  transaction: '278'
+  delay: 1m
+  template: 278-response.hbs
+  values:
+    hcr: A6
+    msg:
+    - MSG*PRIOR AUTHORIZATION NOT REQUIRED FOR THIS SERVICE AND PLACE OF SERVICE

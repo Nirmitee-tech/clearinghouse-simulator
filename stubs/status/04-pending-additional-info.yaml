@@ -1,0 +1,19 @@
+description: Pending — payer wants documentation — Held while the payer waits for records. Nothing moves
+  until something is sent, so this needs a human.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Pending — payer wants documentation
+  group: Claim status (276 → 277)
+  outcome: Held while the payer waits for records. Nothing moves until something is sent, so this needs
+    a human.
+  technical: STC*P4:252 (pending, additional information requested) · attachment or records required
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: P4:252
+    paidAmount: '0.00'
+    stcText: PENDING - MEDICAL RECORDS REQUESTED

@@ -1,0 +1,44 @@
+description: Paid in part — one line denied — A two-line claim where one service is paid and the other
+  refused. The claim total hides the story; the lines tell it.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid in part — one line denied
+  group: Remittance (835)
+  outcome: A two-line claim where one service is paid and the other refused. The claim total hides the
+    story; the lines tell it.
+  technical: Two SVC loops · first line paid with CAS*CO*45 · second line CAS*CO*97 (payment included
+    in another service)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    chargeAmount: '275.00'
+    paidAmount: '120.00'
+    patientResp: '0.00'
+    checkAmount: '120.00'
+    allowedAmount: '120.00'
+    svcLines:
+    - SVC*HC:90837*200.00*120.00**1
+    - DTM*472*20260830
+    - CAS*CO*45*80.00
+    - SVC*HC:90785*75.00*0.00**1
+    - DTM*472*20260830
+    - CAS*CO*97*75.00
+    - LQ*HE*M15

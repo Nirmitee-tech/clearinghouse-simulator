@@ -1,0 +1,38 @@
+description: Paid — deductible applied — Part of the charge goes to the patient’s deductible. That amount
+  is collectable from the patient; the rest is written off.
+priority: 900
+match:
+  transaction: '837'
+scenario:
+  title: Paid — deductible applied
+  group: Remittance (835)
+  outcome: Part of the charge goes to the patient’s deductible. That amount is collectable from the patient;
+    the rest is written off.
+  technical: CLP02=1 · CAS*PR*1 (deductible) 30.00 · CAS*CO*45 (over fee schedule) 20.00 · CLP05 patient
+    responsibility
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '150.00'
+    allowedAmount: '180.00'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00

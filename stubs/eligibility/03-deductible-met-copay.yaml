@@ -1,0 +1,20 @@
+description: Active — deductible met, copay only — Deductible satisfied. From here the patient owes only
+  the copay per visit.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — deductible met, copay only
+  group: Eligibility (270 → 271)
+  outcome: Deductible satisfied. From here the patient owes only the copay per visit.
+  technical: EB*1 active · EB*C remaining 0.00 · EB*B copay 25 for service type 98
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MOCK BEHAVIORAL HEALTH PPO
+    - EB*C*IND*30*****2000.00
+    - EB*C*IND*30*****0.00
+    - EB*B*IND*98***27*25.00

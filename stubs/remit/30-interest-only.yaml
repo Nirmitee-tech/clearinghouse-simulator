@@ -1,0 +1,37 @@
+description: Payment for interest only — A cheque containing no claim payment at all — just interest owed
+  on earlier late payments.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Payment for interest only
+  group: Remittance (835)
+  outcome: A cheque containing no claim payment at all — just interest owed on earlier late payments.
+  technical: BPR with an amount but no CLP loop paying it · PLB*L6 interest as the sole source of the
+    money
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    chargeAmount: '0.00'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '12.40'
+    allowedAmount: '0.00'
+    plb:
+    - PLB*{{default billingNpi "1999999984"}}*20261231*L6*-12.40

@@ -14,11 +14,11 @@ chk "270 recognised"  "$(inject samples/sample-270-eligibility.txt | jq_ "d['tra
 chk "837 recognised"  "$(inject samples/sample-837-claim.txt      | jq_ "d['transaction']")" "837"
 chk "276 recognised"  "$(inject samples/sample-276-status.txt     | jq_ "d['transaction']")" "276"
 
-echo "2. stub library matching (magic values)"
-chk "member ending 99 -> inactive" \
-  "$(inject samples/sample-270-eligibility.txt | jq_ "d['matchedStub']")" "eligibility/00-member-ends-99-inactive"
-chk "default claim -> paid with patient responsibility" \
-  "$(inject samples/sample-837-claim.txt | jq_ "d['matchedStub']")" "claims/99-default-paid-with-patient-resp"
+echo "2. defaults for an unbound patient"
+chk "eligibility falls back to active coverage" \
+  "$(inject samples/sample-270-eligibility.txt | jq_ "d['matchedStub']")" "eligibility/01-active-full"
+chk "claim falls back to paid with deductible" \
+  "$(inject samples/sample-837-claim.txt | jq_ "d['matchedStub']")" "remit/02-deductible"
 
 echo "3. response flow scheduling"
 chk "claim schedules three responses" \
@@ -34,9 +34,9 @@ chk "835 CAS split present"     "$(tr '~' '\n' < "$last835" | grep -cE '^CAS\*(P
 
 echo "5. expectations (identifier -> scenario)"
 curl -s -X POST "$BASE/api/expectations" -H "Content-Type: application/json" \
-  -d '{"label":"smoke","keyField":"memberId","keyValue":"2299","transaction":"270","respondWith":["eligibility/01-member-ends-00-nomatch"]}' >/dev/null
-chk "expectation overrides stub library" \
-  "$(inject samples/sample-270-eligibility.txt | jq_ "d['matchedStub']")" "eligibility/01-member-ends-00-nomatch"
+  -d '{"label":"smoke","keyField":"memberId","keyValue":"2299","transaction":"270","respondWith":["eligibility/07-subscriber-not-found"]}' >/dev/null
+chk "expectation overrides the default" \
+  "$(inject samples/sample-270-eligibility.txt | jq_ "d['matchedStub']")" "eligibility/07-subscriber-not-found"
 chk "flagged as expectation-driven" \
   "$(inject samples/sample-270-eligibility.txt | jq_ "d['viaExpectation']")" "True"
 

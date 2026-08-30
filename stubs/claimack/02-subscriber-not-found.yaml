@@ -1,0 +1,25 @@
+description: Rejected — subscriber not found — The payer cannot match the patient. Retrying unchanged
+  will fail forever; the member ID has to be corrected first.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — subscriber not found
+  group: Claim acknowledgement (277CA)
+  outcome: The payer cannot match the patient. Retrying unchanged will fail forever; the member ID has
+    to be corrected first.
+  technical: STC*A3:33 (returned as unprocessable — subscriber not found) · no payer claim number issued
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:33
+    action: U
+    stcText: SUBSCRIBER NOT FOUND IN PAYER RECORDS

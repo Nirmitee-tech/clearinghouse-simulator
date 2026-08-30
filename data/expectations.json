@@ -1,78 +1,23 @@
 {
-  "seq": 19,
+  "seq": 455,
   "records": [
     {
-      "id": "exp_19",
-      "createdAt": "2026-08-30T16:05:18.397Z",
+      "id": "exp_455",
+      "createdAt": "2026-08-30T16:18:21.745Z",
       "enabled": true,
-      "hits": 0,
-      "cursor": 0,
+      "hits": 2,
+      "cursor": 1,
       "times": null,
-      "label": "HARPER MOCKRIDGE",
+      "label": "smoke",
       "key": {
         "field": "memberId",
-        "value": "479169709"
-      },
-      "transaction": "837",
-      "respondWith": [
-        "claims/98-charge-under-100-paid-full"
-      ],
-      "patientId": "exp_15"
-    },
-    {
-      "id": "exp_18",
-      "createdAt": "2026-08-30T16:05:18.397Z",
-      "enabled": true,
-      "hits": 0,
-      "cursor": 0,
-      "times": null,
-      "label": "HARPER MOCKRIDGE",
-      "key": {
-        "field": "memberId",
-        "value": "479169709"
+        "value": "2299"
       },
       "transaction": "270",
       "respondWith": [
-        "eligibility/99-default-active"
+        "eligibility/07-subscriber-not-found"
       ],
-      "patientId": "exp_15"
-    },
-    {
-      "id": "exp_17",
-      "createdAt": "2026-08-30T16:05:18.390Z",
-      "enabled": true,
-      "hits": 0,
-      "cursor": 0,
-      "times": null,
-      "label": "PAYTON PILOTON",
-      "key": {
-        "field": "memberId",
-        "value": "807501020"
-      },
-      "transaction": "837",
-      "respondWith": [
-        "claims/02-cpt-90837-denied",
-        "claims/99-default-paid-with-patient-resp"
-      ],
-      "patientId": "exp_14"
-    },
-    {
-      "id": "exp_16",
-      "createdAt": "2026-08-30T16:05:18.390Z",
-      "enabled": true,
-      "hits": 0,
-      "cursor": 0,
-      "times": null,
-      "label": "PAYTON PILOTON",
-      "key": {
-        "field": "memberId",
-        "value": "807501020"
-      },
-      "transaction": "270",
-      "respondWith": [
-        "eligibility/00-member-ends-99-inactive"
-      ],
-      "patientId": "exp_14"
+      "lastHitAt": "2026-08-30T16:18:21.785Z"
     }
   ]
 }

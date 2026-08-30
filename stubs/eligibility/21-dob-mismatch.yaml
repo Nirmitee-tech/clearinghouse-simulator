@@ -1,0 +1,16 @@
+description: Date of birth does not match — Right ID, wrong birth date. The payer will not confirm coverage
+  until they agree.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Date of birth does not match
+  group: Eligibility (270 → 271)
+  outcome: Right ID, wrong birth date. The payer will not confirm coverage until they agree.
+  technical: AAA*Y**71*C (patient birth date does not match that for the patient on the database)
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**71*C

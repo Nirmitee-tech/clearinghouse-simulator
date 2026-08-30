@@ -1,0 +1,20 @@
+description: Active — annual visit limit — Covered, but the plan caps sessions per year. Book past the
+  cap and the claims deny.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — annual visit limit
+  group: Eligibility (270 → 271)
+  outcome: Covered, but the plan caps sessions per year. Book past the cap and the claims deny.
+  technical: EB*F (limitations) for service type MH · HSD*VS units with time period qualifier · remaining
+    visits reported
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**MOCK BEHAVIORAL HEALTH PPO
+    - EB*F*IND*MH*****20
+    - HSD*VS*20*YY*1

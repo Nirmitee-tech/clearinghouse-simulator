@@ -56,6 +56,13 @@ app.post('/api/inject', (req, res) => {
 app.get('/api/traffic', (_q, res) => res.json(trafficLog.list()));
 app.get('/api/traffic/:id', (q, res) => res.json(trafficLog.get(q.params.id) || {}));
 app.get('/api/stubs', (_q, res) => res.json(engine.listStubs()));
+// What this scenario actually sends back, rendered against a representative
+// request — so an engineer can read the segments before wiring anything up.
+app.get('/api/stubs/:id(*)/preview', (q, res) => {
+  const out = engine.preview(q.params.id);
+  if (!out) return res.status(404).json({ error: 'no such scenario' });
+  res.json(out);
+});
 app.post('/api/stubs/reload', (_q, res) => res.json({ loaded: engine.reloadStubs() }));
 app.post('/api/stubs/:id(*)/toggle', (q, res) =>
   res.json({ ok: engine.setStubEnabled(q.params.id, !!q.body?.enabled) }));

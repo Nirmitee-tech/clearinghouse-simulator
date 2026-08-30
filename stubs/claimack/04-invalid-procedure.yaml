@@ -1,0 +1,25 @@
+description: Rejected — procedure code not valid — The CPT sent is not one the payer accepts for this
+  claim — retired code, wrong code set, or not permitted for this provider type.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — procedure code not valid
+  group: Claim acknowledgement (277CA)
+  outcome: The CPT sent is not one the payer accepts for this claim — retired code, wrong code set, or
+    not permitted for this provider type.
+  technical: STC*A7:249 (invalid procedure code) · claim returned unprocessable
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A7:249
+    action: U
+    stcText: PROCEDURE CODE NOT VALID FOR DATE OF SERVICE

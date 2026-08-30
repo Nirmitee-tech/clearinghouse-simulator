@@ -1,0 +1,20 @@
+description: Medicare is primary — Medicare pays first and this plan is secondary. Billing this payer
+  first guarantees a denial.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Medicare is primary
+  group: Eligibility (270 → 271)
+  outcome: Medicare pays first and this plan is secondary. Billing this payer first guarantees a denial.
+  technical: EB*R (other or additional payer) naming Medicare as primary · MSG with the coordination-of-benefits
+    order
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**SUPPLEMENT PLAN
+    - EB*R*IND*30**MEDICARE PART B
+    - MSG*MEDICARE IS PRIMARY - SUBMIT TO MEDICARE BEFORE THIS PAYER

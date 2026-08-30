@@ -30,9 +30,23 @@ export function makeRenderer(templatesDir) {
     return cache.get(name);
   }
 
+  // A scenario's own values may themselves reference the request ("pay the
+  // charge that was billed"), so they are rendered against the request before
+  // the response template sees them.
+  function resolveValues(extra, doc) {
+    const out = {};
+    for (const [k, v] of Object.entries(extra)) {
+      if (typeof v === 'string' && v.includes('{{')) out[k] = hb.compile(v, { noEscape: true })(doc);
+      else if (Array.isArray(v)) out[k] = v.map(x =>
+        typeof x === 'string' && x.includes('{{') ? hb.compile(x, { noEscape: true })(doc) : x);
+      else out[k] = v;
+    }
+    return out;
+  }
+
   return {
     render(templateName, doc, extra = {}) {
-      const ctx = { ...doc, ...extra, respControl: String(++responseControlNumber).padStart(9, '0') };
+      const ctx = { ...doc, ...resolveValues(extra, doc), respControl: String(++responseControlNumber).padStart(9, '0') };
       // Templates are authored with one segment per line for reviewability;
       // wire format collapses to segment terminator + no newlines.
       const out = template(templateName)(ctx);

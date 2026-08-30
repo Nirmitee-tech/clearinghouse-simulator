@@ -1,0 +1,17 @@
+description: Provider not recognised by the payer — The clinic or clinician is not on the payer’s file
+  — usually an enrolment or credentialing gap, not a patient problem.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Provider not recognised by the payer
+  group: Eligibility (270 → 271)
+  outcome: The clinic or clinician is not on the payer’s file — usually an enrolment or credentialing
+    gap, not a patient problem.
+  technical: AAA*Y**51*C at the provider loop (provider not on file)
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    providerAaa: AAA*Y**51*C

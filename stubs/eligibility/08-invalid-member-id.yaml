@@ -1,0 +1,16 @@
+description: Member ID is not valid — The ID exists in the right shape but the payer rejects it — usually
+  a typo or an old card.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Member ID is not valid
+  group: Eligibility (270 → 271)
+  outcome: The ID exists in the right shape but the payer rejects it — usually a typo or an old card.
+  technical: AAA*Y**72*C at the subscriber loop (invalid or missing subscriber identification)
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**72*C

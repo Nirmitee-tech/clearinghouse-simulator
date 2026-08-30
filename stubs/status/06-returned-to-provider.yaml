@@ -1,0 +1,19 @@
+description: Returned to the provider — The payer sent it back rather than deciding. Nothing is pending
+  on their side — the next move is yours.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Returned to the provider
+  group: Claim status (276 → 277)
+  outcome: The payer sent it back rather than deciding. Nothing is pending on their side — the next move
+    is yours.
+  technical: STC*A3:187 with action code U · claim is no longer in the payer’s queue
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: A3:187
+    paidAmount: '0.00'
+    stcText: RETURNED TO PROVIDER - RESUBMIT CORRECTED

@@ -1,0 +1,36 @@
+description: Denied — patient not covered on this date — Coverage was not in force for the date of service.
+  The session becomes self-pay unless another plan applies.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — patient not covered on this date
+  group: Remittance (835)
+  outcome: Coverage was not in force for the date of service. The session becomes self-pay unless another
+    plan applies.
+  technical: CLP02=4 · CAS*PR*27 (expenses incurred after coverage terminated) — patient responsibility,
+    not a write-off
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '{{chargeAmount}}'
+    checkAmount: '0.00'
+    cas:
+    - CAS*PR*27*{{chargeAmount}}

@@ -1,0 +1,19 @@
+description: Rejected — payer ID not recognised — The claim was addressed to a payer ID the clearinghouse
+  cannot route. It never left the building.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — payer ID not recognised
+  group: Claim acknowledgement (277CA)
+  outcome: The claim was addressed to a payer ID the clearinghouse cannot route. It never left the building.
+  technical: STC*A3:116 (claim submitted to incorrect payer) raised by the clearinghouse rather than the
+    payer
+respond:
+  transaction: '277'
+  delay: 1m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:116
+    action: U
+    stcText: PAYER ID NOT RECOGNIZED - CHECK PAYER LIST

@@ -1,0 +1,32 @@
+ISA*00*          *00*          *ZZ*{{padRight (default isa08 "CLEARMOCK") 15}}*ZZ*{{padRight (default isa06 "SUBMITTER") 15}}*{{now "YYMMDD"}}*{{now "HHMM"}}*^*00501*{{respControl}}*0*P*:~
+GS*HP*{{default gs03 "CLEARMOCK"}}*{{default gs02 "SUBMITTER"}}*{{now "YYYYMMDD"}}*{{now "HHMM"}}*{{respControl}}*X*005010X221A1~
+ST*835*0001~
+BPR*{{default bprCode "I"}}*{{default checkAmount "0.00"}}*C*{{default payMethod "ACH"}}*CCP*01*999999999*DA*123456789*{{default payerId "00000"}}**01*999988880*DA*987654321*{{now "YYYYMMDD"}}~
+TRN*1*{{default checkNumber "CHK"}}{{respControl}}*{{default payerTin "1999999984"}}~
+DTM*405*{{default productionDate (now "YYYYMMDD")}}~
+N1*PR*{{default payerName "MOCK PAYER"}}~
+N3*1 PAYER PLAZA~
+N4*DENVER*CO*80202~
+N1*PE*{{default billingName "PROVIDER"}}*XX*{{default billingNpi "1999999984"}}~
+REF*TJ*{{default billingTaxId "840000000"}}~
+LX*1~
+CLP*{{default patientControlNumber "PCN"}}*{{default clpStatus "1"}}*{{default chargeAmount "0.00"}}*{{default paidAmount "0.00"}}*{{default patientResp "0.00"}}*{{default filingCode "12"}}*{{default payerClaimRef "MOCKCLM1"}}*11~
+NM1*QC*1*{{upper (default subscriberLast "DOE")}}*{{upper (default subscriberFirst "JOHN")}}****MI*{{default memberId "000000000"}}~
+DTM*232*{{default serviceDate (now "YYYYMMDD")}}~
+{{#each claimCas}}{{this}}~
+{{/each}}
+{{#if svcLines}}{{#each svcLines}}{{this}}~
+{{/each}}{{else}}SVC*HC:{{default cpt "90837"}}*{{default chargeAmount "0.00"}}*{{default paidAmount "0.00"}}**1~
+DTM*472*{{default serviceDate (now "YYYYMMDD")}}~
+{{#each cas}}{{this}}~
+{{/each}}
+{{#each lq}}{{this}}~
+{{/each}}{{/if}}
+AMT*B6*{{default allowedAmount (default paidAmount "0.00")}}~
+{{#each extraLines}}{{this}}~
+{{/each}}
+{{#each plb}}{{this}}~
+{{/each}}
+SE*24*0001~
+GE*1*{{respControl}}~
+IEA*1*{{respControl}}~

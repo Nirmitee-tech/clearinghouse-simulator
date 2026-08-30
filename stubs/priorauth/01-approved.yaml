@@ -1,0 +1,21 @@
+description: Authorisation approved — The payer certifies the requested sessions. Record the certification
+  number — claims must carry it.
+priority: 900
+match:
+  transaction: '278'
+scenario:
+  title: Authorisation approved
+  group: Prior authorization (278)
+  outcome: The payer certifies the requested sessions. Record the certification number — claims must carry
+    it.
+  technical: HCR*A1 (certified in total) with certification number · HSD*VS units approved · DTP*007 valid-through
+    date
+respond:
+  transaction: '278'
+  delay: 2m
+  template: 278-response.hbs
+  values:
+    hcr: A1
+    certNumber: AUTH20260830001
+    unitsApproved: '12'
+    validThrough: '20261231'

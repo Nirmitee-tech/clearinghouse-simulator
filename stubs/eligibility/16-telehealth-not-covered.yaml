@@ -1,0 +1,19 @@
+description: Active — telehealth not covered — In-person is covered but remote sessions are not. The place
+  of service on the claim decides whether you get paid.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — telehealth not covered
+  group: Eligibility (270 → 271)
+  outcome: In-person is covered but remote sessions are not. The place of service on the claim decides
+    whether you get paid.
+  technical: EB*1 for service type MH in person · EB*I (non-covered) for the telehealth service type
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**MOCK PPO
+    - EB*I*IND*98**TELEHEALTH NOT A COVERED BENEFIT

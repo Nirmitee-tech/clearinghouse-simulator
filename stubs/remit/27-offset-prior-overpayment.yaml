@@ -1,0 +1,39 @@
+description: Paid — reduced to recover an old overpayment — This claim paid correctly, but the cheque
+  is short because the payer clawed back an earlier overpayment.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid — reduced to recover an old overpayment
+  group: Remittance (835)
+  outcome: This claim paid correctly, but the cheque is short because the payer clawed back an earlier
+    overpayment.
+  technical: Claim paid in full · PLB*FB (forwarding balance) reducing the cheque below the claim total
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '75.00'
+    allowedAmount: '180.00'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00
+    plb:
+    - PLB*{{default billingNpi "1999999984"}}*20261231*FB:PRIORCLM99*75.00

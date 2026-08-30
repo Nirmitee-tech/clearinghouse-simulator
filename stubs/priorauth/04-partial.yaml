@@ -1,0 +1,21 @@
+description: Authorisation approved in part — Fewer sessions approved than requested. Anything beyond
+  the approved units will deny.
+priority: 950
+match:
+  transaction: '278'
+scenario:
+  title: Authorisation approved in part
+  group: Prior authorization (278)
+  outcome: Fewer sessions approved than requested. Anything beyond the approved units will deny.
+  technical: HCR*A2 (certified in part) · HSD*VS with the reduced unit count · DTP*007 valid-through
+respond:
+  transaction: '278'
+  delay: 2m
+  template: 278-response.hbs
+  values:
+    hcr: A2
+    certNumber: AUTH20260830002
+    unitsApproved: '6'
+    validThrough: '20261031'
+    msg:
+    - MSG*6 OF 12 REQUESTED VISITS CERTIFIED

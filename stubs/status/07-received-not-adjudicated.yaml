@@ -1,0 +1,17 @@
+description: Received, not yet worked — The payer has it and has done nothing yet. Too early to chase.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Received, not yet worked
+  group: Claim status (276 → 277)
+  outcome: The payer has it and has done nothing yet. Too early to chase.
+  technical: STC*A1:19 (receipt acknowledged) · no adjudication activity recorded
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: A1:19
+    paidAmount: '0.00'
+    stcText: CLAIM RECEIVED - NOT YET ADJUDICATED

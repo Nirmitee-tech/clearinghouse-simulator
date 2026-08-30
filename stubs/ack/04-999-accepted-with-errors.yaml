@@ -1,0 +1,22 @@
+description: File accepted with warnings (999) — Accepted, but the clearinghouse flagged something. Worth
+  reading — today’s warning is often next month’s rejection.
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: File accepted with warnings (999)
+  group: File acknowledgement (TA1 / 999)
+  outcome: Accepted, but the clearinghouse flagged something. Worth reading — today’s warning is often
+    next month’s rejection.
+  technical: AK9*E (accepted with errors) · IK5*E · IK3 naming the segment at fault
+respond:
+  transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: E
+    ik5: E
+    accepted: '1'
+    ik:
+    - IK3*REF*15*2010BB*I6
+    - CTX*SITUATIONAL TRIGGER*REF*15*2010BB

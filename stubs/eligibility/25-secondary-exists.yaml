@@ -1,0 +1,19 @@
+description: Active — a second plan also exists — There is other coverage. Bill in the right order or
+  both payers will push the claim back.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — a second plan also exists
+  group: Eligibility (270 → 271)
+  outcome: There is other coverage. Bill in the right order or both payers will push the claim back.
+  technical: EB*1 for this plan · EB*R naming the additional payer · coordination of benefits applies
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**PRIMARY PPO
+    - EB*R*IND*30**SECONDARY PLAN - ACME HEALTH
+    - MSG*COORDINATION OF BENEFITS APPLIES

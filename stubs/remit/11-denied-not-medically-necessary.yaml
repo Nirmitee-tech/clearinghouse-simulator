@@ -1,0 +1,37 @@
+description: Denied — not medically necessary — The payer disputes the clinical justification. Appealable
+  with documentation, and the note quality decides the outcome.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — not medically necessary
+  group: Remittance (835)
+  outcome: The payer disputes the clinical justification. Appealable with documentation, and the note
+    quality decides the outcome.
+  technical: CLP02=4 · CAS*CO*50 (not deemed a medical necessity) · LQ*HE*M127 supporting documentation
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*CO*50*{{chargeAmount}}
+    lq:
+    - LQ*HE*M127

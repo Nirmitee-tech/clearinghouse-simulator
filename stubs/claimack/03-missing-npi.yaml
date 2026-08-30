@@ -1,0 +1,25 @@
+description: Rejected — rendering provider NPI missing — The claim reached the payer but had no usable
+  rendering provider. Common when a clinician has no NPI on file.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — rendering provider NPI missing
+  group: Claim acknowledgement (277CA)
+  outcome: The claim reached the payer but had no usable rendering provider. Common when a clinician has
+    no NPI on file.
+  technical: STC*A7:21 (missing or invalid information) with entity code 82 (rendering provider)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A7:21:82
+    action: U
+    stcText: MISSING OR INVALID RENDERING PROVIDER IDENTIFIER

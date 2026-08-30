@@ -1,0 +1,18 @@
+description: Payer cannot find this member — The payer has no such subscriber. This is a data problem
+  — the member ID or name must be corrected before anything else.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Payer cannot find this member
+  group: Eligibility (270 → 271)
+  outcome: The payer has no such subscriber. This is a data problem — the member ID or name must be corrected
+    before anything else.
+  technical: AAA*Y**75*C at the subscriber loop (subscriber/insured not found) · follow-up action C =
+    please correct and resubmit
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**75*C

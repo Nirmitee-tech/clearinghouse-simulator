@@ -1,0 +1,18 @@
+description: File accepted (999) — The claim file is syntactically valid and has been passed on to the
+  payer.
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: File accepted (999)
+  group: File acknowledgement (TA1 / 999)
+  outcome: The claim file is syntactically valid and has been passed on to the payer.
+  technical: AK9*A (accepted) · IK5*A · one transaction set received and accepted
+respond:
+  transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+    accepted: '1'

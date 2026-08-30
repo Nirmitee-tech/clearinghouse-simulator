@@ -1,0 +1,22 @@
+description: File rejected — required loop missing — A whole required section was absent — commonly the
+  billing provider or subscriber loop.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: File rejected — required loop missing
+  group: File acknowledgement (TA1 / 999)
+  outcome: A whole required section was absent — commonly the billing provider or subscriber loop.
+  technical: AK9*R · IK3*NM1 against loop 2010AA · IK4 element 1 error 1 (mandatory element missing)
+respond:
+  transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: R
+    ik5: R
+    ik5Codes: '5'
+    accepted: '0'
+    ik:
+    - IK3*NM1*8*2010AA*8
+    - IK4*9**1

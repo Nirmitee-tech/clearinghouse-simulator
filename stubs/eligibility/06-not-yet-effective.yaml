@@ -1,0 +1,19 @@
+description: Coverage starts later — The plan exists but is not in force on the date of service — a claim
+  sent today will be denied.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Coverage starts later
+  group: Eligibility (270 → 271)
+  outcome: The plan exists but is not in force on the date of service — a claim sent today will be denied.
+  technical: EB*1 with DTP*346 plan begin dated in the future · nothing payable on today’s date
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**FUTURE EFFECTIVE PLAN
+    dtp:
+    - DTP*346*D8*20261201

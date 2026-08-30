@@ -1,0 +1,39 @@
+description: Paid — corrected claim replaced the original — A resubmission that replaces an earlier claim.
+  The payer links them; your books have to as well.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid — corrected claim replaced the original
+  group: Remittance (835)
+  outcome: A resubmission that replaces an earlier claim. The payer links them; your books have to as
+    well.
+  technical: CLP02=1 with REF*F8 pointing at the original claim number · original reversed separately
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '150.00'
+    patientResp: '30.00'
+    checkAmount: '150.00'
+    allowedAmount: '180.00'
+    cas:
+    - CAS*PR*1*30.00
+    - CAS*CO*45*20.00
+    extraLines:
+    - REF*F8*PYR20260801001

@@ -1,0 +1,21 @@
+description: Covered as a dependent — The patient is on someone else’s policy. The subscriber’s details,
+  not the patient’s, drive the claim.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Covered as a dependent
+  group: Eligibility (270 → 271)
+  outcome: The patient is on someone else’s policy. The subscriber’s details, not the patient’s, drive
+    the claim.
+  technical: Subscriber loop carries the policy holder · patient loop (2100D) carries the dependent with
+    INS relationship
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**FAMILY PLAN
+    - EB*B*IND*98***27*30.00
+    - INS*N*19*001*25

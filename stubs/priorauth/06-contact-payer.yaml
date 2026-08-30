@@ -1,0 +1,18 @@
+description: Cannot decide electronically — The payer will not answer this one by transaction. Somebody
+  has to telephone them.
+priority: 950
+match:
+  transaction: '278'
+scenario:
+  title: Cannot decide electronically
+  group: Prior authorization (278)
+  outcome: The payer will not answer this one by transaction. Somebody has to telephone them.
+  technical: HCR*CT (contact payer) with no certification number issued
+respond:
+  transaction: '278'
+  delay: 1m
+  template: 278-response.hbs
+  values:
+    hcr: CT
+    msg:
+    - MSG*CONTACT UTILIZATION MANAGEMENT AT 800-555-0100

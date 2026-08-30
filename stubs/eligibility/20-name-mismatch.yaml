@@ -1,0 +1,16 @@
+description: Name does not match the member ID — The ID exists but the name on it differs. Usually a marriage,
+  a nickname, or a typo.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Name does not match the member ID
+  group: Eligibility (270 → 271)
+  outcome: The ID exists but the name on it differs. Usually a marriage, a nickname, or a typo.
+  technical: AAA*Y**73*C (invalid or missing subscriber name) at the subscriber loop
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    subscriberAaa: AAA*Y**73*C

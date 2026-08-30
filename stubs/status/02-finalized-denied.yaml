@@ -1,0 +1,19 @@
+description: Finalised — denied — The payer has finished and refused it. The status reply tells you why
+  before the remittance arrives.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Finalised — denied
+  group: Claim status (276 → 277)
+  outcome: The payer has finished and refused it. The status reply tells you why before the remittance
+    arrives.
+  technical: STC*F2:88 (finalised, denied) with paid 0.00
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: F2:88
+    paidAmount: '0.00'
+    stcText: FINALIZED - DENIED - NOT COVERED

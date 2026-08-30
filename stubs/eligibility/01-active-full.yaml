@@ -1,0 +1,25 @@
+description: Active — full benefits — Coverage is active. Deductible, copay and coinsurance all come back
+  so the front desk can quote a cost.
+priority: 900
+match:
+  transaction: '270'
+scenario:
+  title: Active — full benefits
+  group: Eligibility (270 → 271)
+  outcome: Coverage is active. Deductible, copay and coinsurance all come back so the front desk can quote
+    a cost.
+  technical: EB*1 active · EB*C deductible 1500 / 300 remaining · EB*B copay 30 · EB*A coinsurance 20%
+    · DTP*346 plan begin
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MOCK BEHAVIORAL HEALTH PPO
+    - EB*C*IND*30*****1500.00
+    - EB*C*IND*30*****300.00
+    - EB*B*IND*98***27*30.00
+    - EB*A*IND*98*****.20
+    dtp:
+    - DTP*346*D8*20260101

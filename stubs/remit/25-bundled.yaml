@@ -1,0 +1,36 @@
+description: 'No separate payment — bundled into another service — Not a denial exactly: the payer considers
+  it part of another service already paid.'
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: No separate payment — bundled into another service
+  group: Remittance (835)
+  outcome: 'Not a denial exactly: the payer considers it part of another service already paid.'
+  technical: CLP02=1 · CAS*CO*97 (payment adjusted because this service is included in another) · LQ*HE*M15
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*CO*97*{{chargeAmount}}
+    lq:
+    - LQ*HE*M15

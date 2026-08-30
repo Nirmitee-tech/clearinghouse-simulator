@@ -1,0 +1,19 @@
+description: Finalised — paid in part — Settled, but for less than billed. The status reply gives the
+  paid amount before the remittance lands.
+priority: 950
+match:
+  transaction: '276'
+scenario:
+  title: Finalised — paid in part
+  group: Claim status (276 → 277)
+  outcome: Settled, but for less than billed. The status reply gives the paid amount before the remittance
+    lands.
+  technical: STC*F1:65 (finalised, paid in part) with the paid amount in STC04
+respond:
+  transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: F1:65
+    paidAmount: '90.00'
+    stcText: FINALIZED - PAID IN PART

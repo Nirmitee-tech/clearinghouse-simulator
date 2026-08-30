@@ -1,0 +1,20 @@
+description: Authorisation denied — The payer refuses to certify. Proceeding means the session is not
+  covered — the patient must be told before it happens.
+priority: 950
+match:
+  transaction: '278'
+scenario:
+  title: Authorisation denied
+  group: Prior authorization (278)
+  outcome: The payer refuses to certify. Proceeding means the session is not covered — the patient must
+    be told before it happens.
+  technical: HCR*A3 (not certified) with a reason code · MSG carrying the payer’s explanation
+respond:
+  transaction: '278'
+  delay: 2m
+  template: 278-response.hbs
+  values:
+    hcr: A3
+    reasonCode: 0R
+    msg:
+    - MSG*NOT CERTIFIED - CLINICAL CRITERIA FOR THIS LEVEL OF CARE NOT MET

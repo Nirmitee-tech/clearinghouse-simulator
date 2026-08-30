@@ -1,0 +1,25 @@
+description: Rejected — patient details do not match — Name or birth date disagrees with the payer’s record,
+  so the claim cannot be attached to a member.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — patient details do not match
+  group: Claim acknowledgement (277CA)
+  outcome: Name or birth date disagrees with the payer’s record, so the claim cannot be attached to a
+    member.
+  technical: STC*A7:158 (entity date of birth) with entity code QC (patient)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A7:158:QC
+    action: U
+    stcText: PATIENT DATE OF BIRTH DOES NOT MATCH PAYER RECORD

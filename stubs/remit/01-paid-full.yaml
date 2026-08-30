@@ -1,0 +1,33 @@
+description: Paid in full — The payer pays the whole billed amount. Nothing written off, nothing owed
+  by the patient.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Paid in full
+  group: Remittance (835)
+  outcome: The payer pays the whole billed amount. Nothing written off, nothing owed by the patient.
+  technical: CLP02=1 processed as primary · paid equals charge · no CAS segments · AMT*B6 allowed = charge
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '1'
+    paidAmount: '{{chargeAmount}}'
+    patientResp: '0.00'
+    checkAmount: '{{chargeAmount}}'
+    allowedAmount: '{{chargeAmount}}'

@@ -1,0 +1,26 @@
+description: Pending, then finalised — Ask once and the claim is still in adjudication; ask again and
+  it is finished. Use it to test a polling loop.
+priority: 900
+match:
+  transaction: '276'
+scenario:
+  title: Pending, then finalised
+  group: Claim status (276 → 277)
+  outcome: Ask once and the claim is still in adjudication; ask again and it is finished. Use it to test
+    a polling loop.
+  technical: First reply STC*P1:20 (pending, in process) · second reply STC*F1:1 (finalised, paid) with
+    the paid amount
+sequence:
+- transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: P1:20
+    stcText: IN PROCESS
+- transaction: '277'
+  delay: 10s
+  template: 277-status.hbs
+  values:
+    stc: F1:1
+    paidAmount: '150.00'
+    stcText: FINALIZED - PAID

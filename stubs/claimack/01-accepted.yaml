@@ -1,0 +1,19 @@
+description: Claim accepted by the payer — The payer has taken the claim into adjudication and given it
+  their own claim number. Now you wait for the remittance.
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: Claim accepted by the payer
+  group: Claim acknowledgement (277CA)
+  outcome: The payer has taken the claim into adjudication and given it their own claim number. Now you
+    wait for the remittance.
+  technical: STC*A2:20 (accepted for processing) · REF*1K payer claim control number
+respond:
+  transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001

@@ -1,117 +1,55 @@
 {
-  "seq": 15,
+  "seq": 452,
   "records": [
     {
-      "id": "exp_15",
-      "createdAt": "2026-08-30T16:05:18.397Z",
+      "id": "exp_361",
+      "createdAt": "2026-08-30T16:17:34.752Z",
+      "enabled": true,
+      "hits": 0,
+      "cursor": 0,
+      "times": null,
+      "firstName": "EMERSON",
+      "lastName": "STAGEWELL",
+      "dob": "1965-12-21",
+      "gender": "F",
+      "memberId": "749950407",
+      "payerName": "MERIDIAN HEALTH PLAN",
+      "payerId": "00455",
+      "label": null,
+      "bindings": [
+        {
+          "transaction": "278",
+          "scenarios": [
+            {
+              "id": "priorauth/02-pended",
+              "title": "Authorisation pended for review"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exp_2",
+      "createdAt": "2026-08-30T16:15:43.033Z",
       "enabled": true,
       "hits": 0,
       "cursor": 0,
       "times": null,
       "firstName": "HARPER",
-      "lastName": "MOCKRIDGE",
-      "dob": "1992-04-10",
+      "lastName": "SAMPLEMAN",
+      "dob": "1986-03-21",
       "gender": "M",
-      "memberId": "479169709",
+      "memberId": "999076168",
       "payerName": "MERIDIAN HEALTH PLAN",
       "payerId": "00455",
       "label": null,
       "bindings": [
         {
-          "transaction": "270",
+          "transaction": "278",
           "scenarios": [
             {
-              "id": "eligibility/99-default-active",
-              "title": "Coverage is active"
-            }
-          ]
-        },
-        {
-          "transaction": "837",
-          "scenarios": [
-            {
-              "id": "claims/98-charge-under-100-paid-full",
-              "title": "Claim paid in full"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "exp_14",
-      "createdAt": "2026-08-30T16:05:18.390Z",
-      "enabled": true,
-      "hits": 0,
-      "cursor": 0,
-      "times": null,
-      "firstName": "PAYTON",
-      "lastName": "PILOTON",
-      "dob": "2000-01-23",
-      "gender": "F",
-      "memberId": "807501020",
-      "payerName": "MERIDIAN HEALTH PLAN",
-      "payerId": "00455",
-      "label": null,
-      "bindings": [
-        {
-          "transaction": "270",
-          "scenarios": [
-            {
-              "id": "eligibility/00-member-ends-99-inactive",
-              "title": "Coverage has ended"
-            }
-          ]
-        },
-        {
-          "transaction": "837",
-          "scenarios": [
-            {
-              "id": "claims/02-cpt-90837-denied",
-              "title": "Claim denied — no prior authorization"
-            },
-            {
-              "id": "claims/99-default-paid-with-patient-resp",
-              "title": "Claim paid, patient owes the deductible"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "exp_1",
-      "createdAt": "2026-08-30T16:04:16.101Z",
-      "enabled": true,
-      "hits": 0,
-      "cursor": 0,
-      "times": null,
-      "firstName": "QUINN",
-      "lastName": "DRYRUN",
-      "dob": "1967-11-11",
-      "gender": "M",
-      "memberId": "101472820",
-      "payerName": "MERIDIAN HEALTH PLAN",
-      "payerId": "00455",
-      "label": null,
-      "bindings": [
-        {
-          "transaction": "270",
-          "scenarios": [
-            {
-              "id": "eligibility/00-member-ends-99-inactive",
-              "title": "Coverage has ended"
-            }
-          ]
-        },
-        {
-          "transaction": "837",
-          "scenarios": [
-            {
-              "id": "claims/02-cpt-90837-denied",
-              "title": "Claim denied — no prior authorization"
-            },
-            {
-              "id": "claims/99-default-paid-with-patient-resp",
-              "title": "Claim paid, patient owes the deductible"
+              "id": "priorauth/01-approved",
+              "title": "Authorisation approved"
             }
           ]
         }

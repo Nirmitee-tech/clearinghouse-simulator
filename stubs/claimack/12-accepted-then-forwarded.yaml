@@ -1,0 +1,33 @@
+description: Accepted, then forwarded to the real payer — The clearinghouse takes it, then the payer confirms
+  receipt separately. Two acknowledgements for one claim.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Accepted, then forwarded to the real payer
+  group: Claim acknowledgement (277CA)
+  outcome: The clearinghouse takes it, then the payer confirms receipt separately. Two acknowledgements
+    for one claim.
+  technical: First STC*A1:19 (receipt acknowledged by clearinghouse) · then STC*A2:20 (accepted by payer)
+    with REF*1K
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 1m
+  template: 277ca-generic.hbs
+  values:
+    stc: A1:19
+    action: WQ
+    stcText: RECEIVED BY CLEARINGHOUSE
+- transaction: '277'
+  delay: 4m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830009

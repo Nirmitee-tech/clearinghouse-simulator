@@ -1,0 +1,25 @@
+description: Rejected — billing provider not on file — The payer does not recognise the practice. Usually
+  an enrolment gap for this payer, not a claim error.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — billing provider not on file
+  group: Claim acknowledgement (277CA)
+  outcome: The payer does not recognise the practice. Usually an enrolment gap for this payer, not a claim
+    error.
+  technical: STC*A3:24:85 (entity not approved as an electronic submitter, billing provider)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:24:85
+    action: U
+    stcText: BILLING PROVIDER NOT ENROLLED WITH THIS PAYER

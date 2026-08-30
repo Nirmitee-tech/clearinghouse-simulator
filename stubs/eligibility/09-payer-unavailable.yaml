@@ -1,0 +1,18 @@
+description: Payer system is down — Nobody did anything wrong — the payer could not answer. The request
+  should be retried later, not marked as a coverage answer.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Payer system is down
+  group: Eligibility (270 → 271)
+  outcome: Nobody did anything wrong — the payer could not answer. The request should be retried later,
+    not marked as a coverage answer.
+  technical: AAA*Y**42*P at the payer loop (unable to respond at current time) · follow-up action P =
+    resubmit later
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-aaa.hbs
+  values:
+    payerAaa: AAA*Y**42*P

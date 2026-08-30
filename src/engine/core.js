@@ -165,12 +165,49 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
     handle,
     settings,
     reloadStubs() { stubs = loadStubs(stubsDir); renderer.clearCache(); return stubs.length; },
+    // Render every response a scenario would send, against a representative
+    // request, purely for display.
+    preview(id) {
+      const stub = stubs.find(s => s.id === id);
+      if (!stub) return null;
+      const sample = {
+        isa06: 'SUBMITTER', isa08: 'CLEARMOCK', isa13: '000000123', isa09: '260830',
+        gs02: 'SUBMITTER', gs03: 'CLEARMOCK', gs06: '1', st02: '0001',
+        transaction: stub.match?.transaction || '837',
+        traceNumber: 'TM1001', patientControlNumber: 'PCN1001',
+        memberId: '881234561', subscriberFirst: 'AVERY', subscriberLast: 'TESTFIELD',
+        subscriberDob: '19880314', subscriberGender: 'F',
+        payerName: 'MERIDIAN HEALTH PLAN', payerId: '00455',
+        providerLast: 'RIVERBEND BEHAVIORAL HEALTH', providerNpi: '1093817465',
+        billingName: 'RIVERBEND BEHAVIORAL HEALTH', billingNpi: '9990000001',
+        billingTaxId: '840000000', chargeAmount: '200.00', cpt: '90837',
+        serviceDate: '20260830',
+      };
+      const runs = Array.isArray(stub.sequence)
+        ? stub.sequence.map((alt, i) => ({ call: i + 1, steps: Array.isArray(alt) ? alt : [alt] }))
+        : [{ call: null, steps: Array.isArray(stub.respond) ? stub.respond : [stub.respond] }];
+      return {
+        id: stub.id,
+        runs: runs.map(run => ({
+          call: run.call,
+          responses: run.steps.map(step => {
+            try {
+              return { transaction: step.transaction, delay: step.delay || '0s',
+                       edi: renderer.render(step.template, sample, step.values || {}) };
+            } catch (e) {
+              return { transaction: step.transaction, delay: step.delay || '0s', error: e.message };
+            }
+          }),
+        })),
+      };
+    },
     listStubs() {
       return stubs.map(s => ({
         id: s.id, enabled: s.enabled, priority: s.priority,
         description: s.description || '', match: s.match,
         respond: s.respond || null, sequence: s.sequence || null,
         sequenceKey: s.sequenceKey || null, scenario: s.scenario || null,
+        transaction: s.match?.transaction || null,
       }));
     },
     setStubEnabled(id, enabled) { const s = stubs.find(x => x.id === id); if (s) s.enabled = enabled; return !!s; },

@@ -1,0 +1,25 @@
+description: Rejected — duplicate claim — The payer already has this claim. Usually a resubmission that
+  should have been a status enquiry instead.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Rejected — duplicate claim
+  group: Claim acknowledgement (277CA)
+  outcome: The payer already has this claim. Usually a resubmission that should have been a status enquiry
+    instead.
+  technical: STC*A3:18 (duplicate of a previously submitted claim)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: A3:18
+    action: U
+    stcText: DUPLICATE OF A PREVIOUSLY SUBMITTED CLAIM

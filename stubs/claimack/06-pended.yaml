@@ -1,0 +1,24 @@
+description: Pended at the payer — Accepted but held — additional review before adjudication. No money
+  and no denial yet.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Pended at the payer
+  group: Claim acknowledgement (277CA)
+  outcome: Accepted but held — additional review before adjudication. No money and no denial yet.
+  technical: STC*P1:20 (pending, in process) · the claim is alive but not finalised
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 3m
+  template: 277ca-generic.hbs
+  values:
+    stc: P1:20
+    action: WQ
+    stcText: PENDING - ADDITIONAL REVIEW IN PROGRESS

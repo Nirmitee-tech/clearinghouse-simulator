@@ -1,0 +1,20 @@
+description: Active — visit limit already used up — The plan year’s sessions are gone. Anything further
+  is the patient’s to pay unless an exception is authorised.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — visit limit already used up
+  group: Eligibility (270 → 271)
+  outcome: The plan year’s sessions are gone. Anything further is the patient’s to pay unless an exception
+    is authorised.
+  technical: EB*F limitation with HSD showing 0 remaining · claims after this point deny with CO-119
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**MOCK BEHAVIORAL HEALTH PPO
+    - EB*F*IND*MH*****0
+    - HSD*VS*0*YY*1

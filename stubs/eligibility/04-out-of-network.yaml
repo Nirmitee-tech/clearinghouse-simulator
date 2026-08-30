@@ -1,0 +1,20 @@
+description: Active — out of network only — The plan covers this patient, but not at this practice. Out-of-network
+  rates and a separate deductible apply.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — out of network only
+  group: Eligibility (270 → 271)
+  outcome: The plan covers this patient, but not at this practice. Out-of-network rates and a separate
+    deductible apply.
+  technical: EB*1 with EB12=N (out of network) · separate EB*C out-of-network deductible · EB*A 40% coinsurance
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**MOCK PPO*****N
+    - EB*C*IND*30*****5000.00
+    - EB*A*IND*98*****.40

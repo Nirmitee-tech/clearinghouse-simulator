@@ -1,0 +1,36 @@
+description: Zero-dollar remittance — A remittance carrying no money at all — every claim on it denied.
+  Easy to overlook, and it still needs posting.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Zero-dollar remittance
+  group: Remittance (835)
+  outcome: A remittance carrying no money at all — every claim on it denied. Easy to overlook, and it
+    still needs posting.
+  technical: BPR with 0.00 and payment method NON (no payment) · CLP02=4 · no TRN cheque number to reassociate
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    payMethod: NON
+    cas:
+    - CAS*CO*97*{{chargeAmount}}

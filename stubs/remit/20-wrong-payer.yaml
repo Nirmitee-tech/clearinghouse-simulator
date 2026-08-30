@@ -1,0 +1,34 @@
+description: Denied — not this payer’s member — Sent to the wrong company. The patient may well be covered
+  — just not here.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — not this payer’s member
+  group: Remittance (835)
+  outcome: Sent to the wrong company. The patient may well be covered — just not here.
+  technical: CLP02=4 · CAS*CO*109 (claim not covered by this payer or contractor)
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '0.00'
+    checkAmount: '0.00'
+    cas:
+    - CAS*CO*109*{{chargeAmount}}

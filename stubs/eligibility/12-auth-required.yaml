@@ -1,0 +1,19 @@
+description: Active — prior authorization required — Covered, but the payer requires authorisation before
+  the session. Bill without it and you get a CO-197 denial.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — prior authorization required
+  group: Eligibility (270 → 271)
+  outcome: Covered, but the payer requires authorisation before the session. Bill without it and you get
+    a CO-197 denial.
+  technical: EB*1 with EB11=Y (authorization or certification required) for service type MH
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*MH**MOCK BEHAVIORAL HEALTH PPO*****Y
+    - EB*B*IND*MH***27*40.00

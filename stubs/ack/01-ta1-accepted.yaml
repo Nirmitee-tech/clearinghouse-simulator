@@ -1,0 +1,17 @@
+description: Interchange accepted (TA1) — The envelope itself is well formed. This says nothing about
+  the claims inside it.
+priority: 990
+match:
+  transaction: '837'
+scenario:
+  title: Interchange accepted (TA1)
+  group: File acknowledgement (TA1 / 999)
+  outcome: The envelope itself is well formed. This says nothing about the claims inside it.
+  technical: TA1 with TA104=A (accepted) and TA105=000 (no error)
+respond:
+  transaction: TA1
+  delay: 10s
+  template: ta1.hbs
+  values:
+    ta104: A
+    ta105: '000'

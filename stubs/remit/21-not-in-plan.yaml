@@ -1,0 +1,34 @@
+description: Denied — service not in the patient’s plan — Refused as a benefit exclusion and pushed to
+  the patient, unlike a contractual write-off.
+priority: 950
+match:
+  transaction: '837'
+scenario:
+  title: Denied — service not in the patient’s plan
+  group: Remittance (835)
+  outcome: Refused as a benefit exclusion and pushed to the patient, unlike a contractual write-off.
+  technical: CLP02=4 · CAS*PR*204 (not covered under the patient’s current benefit plan) — patient responsibility
+respond:
+- transaction: '999'
+  delay: 30s
+  template: 999-generic.hbs
+  values:
+    ak9: A
+    ik5: A
+- transaction: '277'
+  delay: 2m
+  template: 277ca-generic.hbs
+  values:
+    stc: A2:20
+    action: WQ
+    payerClaimRef: PYR20260830001
+- transaction: '835'
+  delay: 10m
+  template: 835-generic.hbs
+  values:
+    clpStatus: '4'
+    paidAmount: '0.00'
+    patientResp: '{{chargeAmount}}'
+    checkAmount: '0.00'
+    cas:
+    - CAS*PR*204*{{chargeAmount}}

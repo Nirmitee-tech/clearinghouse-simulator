@@ -1,0 +1,20 @@
+description: Active under COBRA — Coverage continues under COBRA, which lapses fast if premiums are missed.
+  Re-verify more often than usual.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active under COBRA
+  group: Eligibility (270 → 271)
+  outcome: Coverage continues under COBRA, which lapses fast if premiums are missed. Re-verify more often
+    than usual.
+  technical: EB*1 with insurance type code CO (COBRA) · DTP*307 coverage end date approaching
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30*CO*COBRA CONTINUATION
+    dtp:
+    - DTP*307*D8*20261130

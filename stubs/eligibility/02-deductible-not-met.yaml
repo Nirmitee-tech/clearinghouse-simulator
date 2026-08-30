@@ -1,0 +1,22 @@
+description: Active — deductible not met — Active, but the patient still owes the full deductible. Every
+  session is patient-pay until it is met.
+priority: 950
+match:
+  transaction: '270'
+scenario:
+  title: Active — deductible not met
+  group: Eligibility (270 → 271)
+  outcome: Active, but the patient still owes the full deductible. Every session is patient-pay until
+    it is met.
+  technical: EB*1 active · EB*C 2500 deductible with 2500 remaining · no copay segment
+respond:
+  transaction: '271'
+  delay: 20s
+  template: 271-generic.hbs
+  values:
+    eb:
+    - EB*1*IND*30**HIGH DEDUCTIBLE PLAN
+    - EB*C*IND*30*****2500.00
+    - EB*C*IND*30*****2500.00
+    dtp:
+    - DTP*346*D8*20260101
