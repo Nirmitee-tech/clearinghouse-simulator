@@ -36,17 +36,48 @@ username: simulator
 password: simulator
 ```
 
-**What has been proven, and what has not.** The wire format is validated against
-a production corpus of 10,432 real response files: byte-identical interchange
-headers, the same delimiters, the same segment order, the same filename shapes
-(see [docs/CORPUS-FINDINGS.md](docs/CORPUS-FINDINGS.md)). Every scenario is
-checked on each run to render structurally valid X12.
+### Where responses are delivered
 
-What has *not* happened yet is an end-to-end run with a real revenue-cycle
-application consuming these responses through its own parsers and posting logic.
-Until that is done, treat "drop-in" as the design goal rather than a tested
-guarantee — and if you do run one, an issue reporting what broke is the most
-useful contribution this project can get.
+Few applications poll a single flat directory — most partition the drop folder,
+usually by organization. The delivery path is a template, and every directory in
+it is created on demand:
+
+```bash
+CM_DELIVER_TO="{orgId}"              # /Download/1/...
+CM_DELIVER_TO="{payerId}/{transaction}"
+CM_ORG_ID=1
+```
+
+Tokens: `{orgId}`, `{payerId}`, `{transaction}`, `{clientId}`. Both are also
+settable at runtime through `POST /api/settings`.
+
+### Two things that will bite you
+
+Learned from wiring this to a real application:
+
+- **Give the SFTP server one mount, not several.** Applications typically move
+  processed files with an SFTP rename, and renaming across separate mounts fails.
+  Keep `Upload`, `Download`, `Processed` and `Error` inside a single mounted
+  directory (the compose file does this).
+- **Pre-create the directories the application expects.** An SFTP chroot root is
+  not writable, so an application that tries to `mkdir` its own drop folders will
+  fail with permission denied.
+
+### What has been proven
+
+The wire format is validated against a production corpus of 10,432 real response
+files: byte-identical interchange headers, the same delimiters, the same segment
+order, the same filename shapes (see
+[docs/CORPUS-FINDINGS.md](docs/CORPUS-FINDINGS.md)).
+
+It has also been run end to end against a real revenue-cycle application: the
+application uploaded an 837 over SFTP, the simulator answered with 999, 277CA and
+835 files, and the application's own scheduled sweep collected them, parsed them
+and posted the remittance to its database — through its production code path,
+with no test hooks. It could not tell the difference.
+
+That was one application. If you run a second one, an issue reporting what broke
+is the most useful contribution this project can get.
 
 ## Quick start
 
@@ -190,6 +221,17 @@ dominate real files but appear in no tutorial. Scenarios carrying a
 `seenInProduction` note are labelled in the UI with how often they occurred.
 
 The corpus itself is private healthcare data and is not part of this repository.
+
+## Tests
+
+```bash
+npm test              # scenarios, delivery routing and wire format, engine behaviour
+npm run test:sftp     # end to end through a real SFTP server (needs Docker)
+```
+
+`test/scenarios.mjs` generates a patient for every scenario, sends a request built
+from that patient's own details, and checks the advertised outcome is what comes
+back — so the catalogue cannot advertise details that do not work.
 
 ## Status & scope
 

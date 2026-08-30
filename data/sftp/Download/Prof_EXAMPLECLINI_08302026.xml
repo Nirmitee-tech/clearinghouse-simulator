@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://www.zirmed.com/Claims/Reports/rptClaimsEditScreenChanges.xslt"?>
+<DOC>
+  <CustomerInformation Name="EXAMPLE BEHAVIORAL HEALTH" CustID="EXAMPLECLINIC">
+    <Claim PatNumber="PCN-TEST" FacName="" ClaimRefNum="109010623" PayerID="00455" PayerName="MERIDIAN HEALTH PLAN" Payer="MERIDIAN HEALTH PLAN (00455)" EarliestDos="20260830" PatName="STAGEWELL, HARPER" DTEdit="20260830" BillingName="EXAMPLE BEHAVIORAL HEALTH" RenAttName="EXAMPLE" TotalCharges="200.00" ClaimID="109010623" BatchID="109010623" SeqNum="1">
+      <EditUser FName="Payer" LastInitial="S" UserName="Clearinghouse Edit">
+        <C AuditClaimChangeID="109010623">
+          <ClaimFields FieldDescription="Diagnosis Code 1" ClientFieldID="2300.HI01-2" OldValue="F41.9" NewValue="F41.1" SequenceValue="1" LineItemControlValue="" />
+        </C>
+      </EditUser>
+    </Claim>
+  </CustomerInformation>
+</DOC>

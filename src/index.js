@@ -166,9 +166,27 @@ app.post('/api/settings', (q, res) => {
   res.json(engine.settings);
 });
 app.post('/api/release', (_q, res) => res.json({ released: engine.releaseHeld() }));
-app.get('/api/outbound', (_q, res) => res.json(
-  fs.readdirSync(CFG.outbound).map(f => ({ file: f, size: fs.statSync(path.join(CFG.outbound, f)).size }))
-));
+// What has been delivered, including anything routed into sub-directories.
+function listDelivered(dir, base = dir) {
+  const out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) out.push(...listDelivered(full, base));
+    else out.push({ file: path.relative(base, full), size: fs.statSync(full).size });
+  }
+  return out;
+}
+app.get('/api/outbound', (_q, res) => res.json(listDelivered(CFG.outbound)));
+
+// Read one delivered file back, so a test or a curious engineer can see exactly
+// what the application will pick up without shelling into a container.
+app.get('/api/outbound/:file(*)', (q, res) => {
+  const target = path.resolve(CFG.outbound, q.params.file);
+  if (!target.startsWith(path.resolve(CFG.outbound) + path.sep) || !fs.existsSync(target)) {
+    return res.status(404).json({ error: 'no such delivered file' });
+  }
+  res.type('text/plain').send(fs.readFileSync(target, 'utf8'));
+});
 
 app.listen(CFG.port, () => {
   console.log(`clearmock listening on http://localhost:${CFG.port}`);

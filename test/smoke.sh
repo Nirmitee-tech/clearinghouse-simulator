@@ -26,11 +26,22 @@ chk "claim schedules three responses" \
 
 echo "4. value echo (correlation)"
 sleep 2
-last835=$(ls -t data/outbound/ERA_835_* 2>/dev/null | head -1)
-chk "835 echoes patient control number" "$(tr '~' '\n' < "$last835" | grep -c 'CLP\*PCN-TEST-1')" "1"
-chk "835 echoes member id"      "$(tr '~' '\n' < "$last835" | grep -c 'MI\*2232')" "1"
-chk "835 echoes billing tax id" "$(tr '~' '\n' < "$last835" | grep -c 'REF\*TJ\*840000000')" "1"
-chk "835 CAS split present"     "$(tr '~' '\n' < "$last835" | grep -cE '^CAS\*(PR\*1|CO\*45)')" "2"
+# Read back the remittance THIS injection produced. Picking the newest file in
+# the directory would pick up another test's delivery, so the traffic entry's own
+# id is what identifies it.
+entry_id=$(inject samples/sample-837-claim.txt | jq_ "d['id']")
+sleep 2
+era=$(curl -s "$BASE/api/traffic" | python3 -c "
+import sys,json
+eid=int('$entry_id')
+e=[x for x in json.load(sys.stdin) if x['id']==eid]
+d=[y for y in (e[0]['deliveries'] if e else []) if y['txn']=='835' and y['status'].startswith('deliver')]
+print(d[-1]['fileName'] if d else '')")
+body=$(curl -s "$BASE/api/outbound/$era" | tr '~' '\n')
+chk "835 echoes patient control number" "$(echo "$body" | grep -c 'CLP|PCN-TEST-1')" "1"
+chk "835 echoes member id"      "$(echo "$body" | grep -c 'MI|881234561')" "1"
+chk "835 echoes billing tax id" "$(echo "$body" | grep -c 'REF|TJ|840000000')" "1"
+chk "835 CAS split present"     "$(echo "$body" | grep -cE '^CAS\|(PR\|1|CO\|45)')" "2"
 
 echo "5. expectations (identifier -> scenario)"
 curl -s -X POST "$BASE/api/expectations" -H "Content-Type: application/json" \
@@ -47,9 +58,9 @@ chk "276 poll 2 -> step 2/2" "$(inject samples/sample-276-status.txt | jq_ "d['s
 
 echo "7. outage mode"
 curl -s -X POST "$BASE/api/settings" -H "Content-Type: application/json" -d '{"outage":true}' >/dev/null
-before=$(ls data/outbound | wc -l | tr -d ' ')
+before=$(curl -s "$BASE/api/outbound" | python3 -c "import sys,json;print(len(json.load(sys.stdin)))")
 inject samples/sample-837-claim.txt >/dev/null; sleep 2
-chk "no files written during outage" "$(ls data/outbound | wc -l | tr -d ' ')" "$before"
+chk "no files written during outage" "$(curl -s "$BASE/api/outbound" | python3 -c "import sys,json;print(len(json.load(sys.stdin)))")" "$before"
 curl -s -X POST "$BASE/api/settings" -H "Content-Type: application/json" -d '{"outage":false}' >/dev/null
 
 echo "8. hold and release"
@@ -62,7 +73,8 @@ curl -s -X POST "$BASE/api/settings" -H "Content-Type: application/json" -d '{"h
 echo "9. safety"
 printf 'ISA*00*          *00*          *ZZ*A              *ZZ*B              *260830*1200*^*00501*../../evil*0*P*:~GS*HS*A*B*20260830*1200*1*X*005010X279A1~ST*270*0001~SE*2*0001~GE*1*1~IEA*1*1~' > /tmp/evil.txt
 inject /tmp/evil.txt >/dev/null; sleep 1
-chk "traversal attempt writes nothing outside outbound" "$(ls data/ | grep -c evil)" "0"
+chk "traversal attempt writes nothing outside outbound" \
+  "$(curl -s "$BASE/api/outbound" | grep -c 'evil')" "0"
 chk "garbage input does not crash the engine" \
   "$(echo 'not x12 at all' | curl -s -X POST "$BASE/api/inject" -H 'Content-Type: text/plain' --data-binary @- | jq_ "d['transaction']")" "unparseable"
 

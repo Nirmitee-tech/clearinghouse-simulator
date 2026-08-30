@@ -21,7 +21,14 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
   let stubs = loadStubs(stubsDir);
   let profile = WAYSTAR;
   const renderer = makeRenderer(templatesDir, profile);
-  const settings = { speed: 600, outage: false, hold: false, profile: profile.name };
+  // Applications rarely poll one flat directory. Most partition the drop folder —
+  // by organization, by payer, by transaction — so the delivery path is a template
+  // and every directory in it is created on demand.
+  const settings = {
+    speed: 600, outage: false, hold: false, profile: profile.name,
+    deliverTo: process.env.CM_DELIVER_TO ?? '',
+    organizationId: process.env.CM_ORG_ID ?? '1',
+  };
   const held = [];   // responses waiting for manual release when settings.hold
   const timers = new Set();
 
@@ -80,27 +87,44 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
     });
   }
 
+  // Resolve the delivery sub-path for one response. Tokens are substituted from
+  // the request, so "{orgId}" or "{payerId}/{transaction}" both work.
+  function deliveryDir(txn, doc) {
+    const template = settings.deliverTo || '';
+    if (!template) return outboundDir;
+    const sub = template
+      .replace(/\{orgId\}/g, safeToken(settings.organizationId, 20))
+      .replace(/\{payerId\}/g, safeToken(doc.payerId || 'unknown', 20))
+      .replace(/\{transaction\}/g, safeToken(txn, 6))
+      .replace(/\{clientId\}/g, safeToken(doc.isa06 || profile.clientId, 20))
+      .split('/').filter(Boolean).map(seg => safeToken(seg, 40)).join(path.sep);
+    return path.join(outboundDir, sub);
+  }
+
   // Defence in depth: even with sanitised tokens, never write outside outboundDir.
-  function writeOutbound(fileName, content) {
-    const target = path.resolve(outboundDir, fileName);
+  function writeOutbound(fileName, content, dir = outboundDir) {
+    const target = path.resolve(dir, fileName);
     if (!target.startsWith(path.resolve(outboundDir) + path.sep)) {
       throw new Error(`refusing to write outside outbound directory: ${fileName}`);
     }
+    fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, content);
   }
 
-  function deliver(txn, content, fileName, entry) {
+  function deliver(txn, content, fileName, entry, doc) {
     if (settings.outage) {
       entry.deliveries.push({ txn, fileName, status: 'dropped (outage mode)', at: new Date().toISOString() });
       return;
     }
     if (settings.hold) {
-      held.push({ txn, content, fileName, entry });
+      held.push({ txn, content, fileName, entry, dir: deliveryDir(txn, doc || {}) });
       entry.deliveries.push({ txn, fileName, status: 'held (manual release)', at: new Date().toISOString() });
       return;
     }
-    writeOutbound(fileName, content);
-    entry.deliveries.push({ txn, fileName, status: 'delivered', at: new Date().toISOString() });
+    const dir = deliveryDir(txn, doc || {});
+    writeOutbound(fileName, content, dir);
+    const shown = path.relative(outboundDir, path.join(dir, fileName));
+    entry.deliveries.push({ txn, fileName: shown, status: 'delivered', at: new Date().toISOString() });
   }
 
   function handle(raw, source, name = null) {
@@ -157,7 +181,7 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
               // Not every response a clearinghouse sends is X12: portal reports
               // arrive as XML and must not be run through the delimiter pass.
               const content = step.transaction === 'XML' ? rendered : applyDelimiters(rendered, profile);
-              deliver(step.transaction, content, respFileName(step.transaction, doc), entry);
+              deliver(step.transaction, content, respFileName(step.transaction, doc), entry, doc);
             } catch (e) {
               entry.deliveries.push({ txn: step.transaction, status: `render error: ${e.message}`, at: new Date().toISOString() });
             }
@@ -244,7 +268,7 @@ export function createEngine({ stubsDir, templatesDir, outboundDir, trafficLog, 
     releaseHeld() {
       const n = held.length;
       for (const h of held.splice(0)) {
-        writeOutbound(h.fileName, h.content);
+        writeOutbound(h.fileName, h.content, h.dir || outboundDir);
         h.entry.deliveries.push({ txn: h.txn, fileName: h.fileName, status: 'delivered (released)', at: new Date().toISOString() });
       }
       return n;
