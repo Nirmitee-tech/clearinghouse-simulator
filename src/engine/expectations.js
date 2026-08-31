@@ -24,8 +24,13 @@ export function createFileStore(filePath) {
   }
 
   function flush() {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify({ seq, records }, null, 2));
+    try {
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, JSON.stringify({ seq, records }, null, 2));
+    } catch (err) {
+      // Records stay in memory; only their survival across a restart is lost.
+      console.error(`[expectations] could not persist to ${filePath}: ${err.message}`);
+    }
   }
 
   return {

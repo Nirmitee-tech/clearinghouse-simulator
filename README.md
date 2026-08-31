@@ -180,8 +180,8 @@ Pinned scenarios are listed and can be created from the same screen.
 
 ## The scenario library
 
-88 scenarios across the full transaction set, each stating both what the practice
-sees and what comes back on the wire:
+120 scenarios across the full transaction set, each stating both what the
+practice sees and what comes back on the wire:
 
 | Group | Covers |
 |---|---|
@@ -191,6 +191,7 @@ sees and what comes back on the wire:
 | Claim acknowledgement (277CA) | accepted and forwarded, plus rejections for subscriber, NPI, procedure, diagnosis, dates, duplicates, enrolment and payer routing |
 | Remittance (835) | paid in full, deductible / coinsurance / copay, contractual write-off, partial line payment, bundling, sequestration, secondary COB, capitation, interest, corrected claims, reversals and offsets, predetermination, and the common denials (no auth, non-covered, timely filing, missing info, duplicate, medical necessity, provider not eligible, wrong payer) |
 | Claim status (276 → 277) | pending, pending-for-records, finalised paid / part-paid / denied, returned, received-not-worked, not on file |
+| Portal reports (XML) | the non-X12 claim-edit report a clearinghouse drops when someone changes a claim in its web portal |
 
 Every scenario names its own X12 detail — `CAS*CO*197` with `LQ*HE*N130`, `AAA*Y**75*C`,
 `STC*A7:21:82`, `CLP02=22` with `PLB*WO` — and the UI can render the exact
@@ -213,7 +214,7 @@ response before you wire anything up.
 
 ## Fidelity
 
-The wire format and 119 scenarios were validated against a production corpus of
+The wire format and every scenario were validated against a production corpus of
 10,432 real response files. That work is written up in
 [docs/CORPUS-FINDINGS.md](docs/CORPUS-FINDINGS.md) — including several places
 where textbook X12 and real clearinghouse traffic disagree, and the codes that

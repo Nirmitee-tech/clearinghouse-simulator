@@ -6,6 +6,8 @@ COPY src ./src
 COPY ui ./ui
 COPY templates ./templates
 COPY stubs ./stubs
-ENV CM_INBOUND=/data/inbound CM_OUTBOUND=/data/outbound CM_PORT=8090
+# A writable state directory owned by the non-root user the compose file runs as.
+RUN mkdir -p /app/data && chown -R 1001:1001 /app/data
+ENV CM_INBOUND=/data/inbound CM_OUTBOUND=/data/outbound CM_STATE_DIR=/app/data CM_PORT=8090
 EXPOSE 8090
 CMD ["node", "src/index.js"]

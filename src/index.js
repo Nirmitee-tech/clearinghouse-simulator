@@ -19,12 +19,16 @@ const CFG = {
   stubs:    process.env.CM_STUBS    || path.join(ROOT, 'stubs'),
   templates:process.env.CM_TEMPLATES|| path.join(ROOT, 'templates'),
   port:     Number(process.env.CM_PORT || 8090),
+  // Where the simulator keeps its own state. Separate from the code directory so
+  // the process does not need write access to its install path — a container
+  // running as a non-root user cannot write to /app.
+  state:    process.env.CM_STATE_DIR || path.join(ROOT, 'data'),
 };
-for (const d of [CFG.inbound, CFG.outbound]) fs.mkdirSync(d, { recursive: true });
+for (const d of [CFG.inbound, CFG.outbound, CFG.state]) fs.mkdirSync(d, { recursive: true });
 
-const trafficLog = createTrafficLog(path.join(ROOT, 'data/traffic.jsonl'));
-const expectations = createFileStore(path.join(ROOT, 'data/expectations.json'));
-const patients = createFileStore(path.join(ROOT, 'data/patients.json'));
+const trafficLog = createTrafficLog(path.join(CFG.state, 'traffic.jsonl'));
+const expectations = createFileStore(path.join(CFG.state, 'expectations.json'));
+const patients = createFileStore(path.join(CFG.state, 'patients.json'));
 const engine = createEngine({
   stubsDir: CFG.stubs, templatesDir: CFG.templates,
   outboundDir: CFG.outbound, trafficLog, expectations,
@@ -192,4 +196,5 @@ app.listen(CFG.port, () => {
   console.log(`clearmock listening on http://localhost:${CFG.port}`);
   console.log(`  inbound  : ${CFG.inbound}`);
   console.log(`  outbound : ${CFG.outbound}`);
+  console.log(`  state    : ${CFG.state}`);
 });

@@ -13,7 +13,11 @@ export function createTrafficLog(persistPath, max = 500) {
     add(e) {
       entries.push(e);
       if (entries.length > max) entries.shift();
-      if (persistPath) fs.appendFileSync(persistPath, JSON.stringify(e) + '\n');
+      // Persistence is a convenience for demos; losing it must never fail a request.
+      if (persistPath) {
+        try { fs.appendFileSync(persistPath, JSON.stringify(e) + '\n'); }
+        catch (err) { console.error(`[traffic] could not persist to ${persistPath}: ${err.message}`); }
+      }
     },
     list: () => entries.slice().reverse(),
     get: (id) => entries.find(e => e.id === Number(id)),

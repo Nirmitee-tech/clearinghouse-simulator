@@ -1,26 +1,54 @@
 # Clearinghouse Simulator — a drop-in stand-in for a real clearinghouse.
-# The SFTP container is the wire-level stand-in: the system under test uploads
-# 270/837 files exactly as it would to the real clearinghouse, and polls the
-# same outbound directory for 271/999/277CA/835 responses. The engine watches
-# the shared volume between them.
+#
+# The SFTP container is the wire-level stand-in: your application uploads 837 and
+# 270 files exactly as it would to the real thing, and polls the same directory
+# for 271 / 999 / 277CA / 835 responses. The engine watches the shared volume
+# between them.
+#
+# Everything lives under one mount on purpose. Applications typically move
+# processed files with an SFTP rename, and renaming across separate mounts fails.
 services:
+  # The chroot root of an SFTP server is not writable, so the directories an
+  # application expects have to exist before it connects — and be owned by the
+  # SFTP user. This runs once and exits.
+  init:
+    image: alpine:3
+    # Exec form: a plain string would be split into argv and "sh -c" would only
+    # receive the first word as its script.
+    command:
+      - sh
+      - -c
+      - mkdir -p /data/Upload /data/Download /data/Processed /data/Error /data/state && chown -R 1001:1001 /data && chmod -R 775 /data
+    volumes:
+      - edi:/data
+
   engine:
     build: .
     ports: ["8090:8090"]          # control UI + /api/inject
+    depends_on:
+      init:
+        condition: service_completed_successfully
     volumes:
       - edi:/data
-      - ./stubs:/app/stubs        # edit stubs live, hit "reload stubs" in the UI
+      - ./stubs:/app/stubs        # edit scenarios live, then "reload" in the UI
       - ./templates:/app/templates
     environment:
-      CM_INBOUND: /data/inbound
-      CM_OUTBOUND: /data/outbound
+      CM_INBOUND: /data/Upload    # what your application uploads
+      CM_OUTBOUND: /data/Download # what your application collects
+      CM_DELIVER_TO: ""           # e.g. "{orgId}" to partition the drop folder
+      CM_ORG_ID: "1"
+      CM_STATE_DIR: /data/state
+    user: "1001:1001"             # write files the SFTP user can read and move
 
   sftp:
     image: atmoz/sftp:alpine
     ports: ["2222:22"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
     volumes:
-      - edi:/home/simulator/data
-    # user:password:uid:gid — matches the credentials you put in the app's config
+      - edi:/home/simulator/edi
+    # user:password:uid:gid — the credentials you put in your application's config
     command: simulator:simulator:1001:1001
 
 volumes:
