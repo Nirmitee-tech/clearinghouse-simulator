@@ -89,10 +89,16 @@ Every developer runs their own copy; there is nothing shared to break and no
 credentials to hand out.
 
 ```bash
-docker run -p 8090:8090 -p 2222:22 ghcr.io/nirmitee-tech/clearinghouse-simulator
+git clone https://github.com/Nirmitee-tech/clearinghouse-simulator
+cd clearinghouse-simulator && docker compose up
 ```
 
-or, for the full SFTP setup, clone the repo and `docker compose up`.
+That is the whole setup: the UI on `localhost:8090`, SFTP on `localhost:2222`,
+and 120 scenarios ready to use. A prebuilt image is also published to
+`ghcr.io/nirmitee-tech/clearinghouse-simulator` on every push to `main` — note
+that GitHub creates new container packages **private** even for a public
+repository, so pulling it anonymously fails until the package's visibility is
+switched to public once in the repository's package settings.
 
 **In automated tests**, run it as a service and drive it over HTTP: create a test
 patient bound to the outcome you want, use those details in your own fixtures,
