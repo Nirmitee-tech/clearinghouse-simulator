@@ -29,11 +29,15 @@ settings at this container and nothing else in your code changes — no client
 library, no interface to swap, no build flag.
 
 ```yaml
-# whatever your app calls its clearinghouse SFTP settings
+# whatever your application calls its clearinghouse SFTP settings
 host: localhost
 port: 2222
 username: simulator
 password: simulator
+outbound_dir: /edi/Upload      # where it puts 837 and 270 files
+inbound_dir:  /edi/Download    # where it collects responses
+processed_dir: /edi/Processed  # where it moves what it has consumed
+error_dir:     /edi/Error
 ```
 
 ### Where responses are delivered
@@ -84,6 +88,10 @@ is the most useful contribution this project can get.
 ```bash
 docker compose up          # UI on http://localhost:8090, SFTP on :2222
 ```
+
+That brings up three things: a one-shot `init` that creates the directories an
+SFTP chroot cannot create for itself, the engine, and an SFTP server sharing one
+volume with it — `/edi/Upload`, `/edi/Download`, `/edi/Processed`, `/edi/Error`.
 
 Point your application's clearinghouse SFTP settings at `localhost:2222`
 (user `simulator`, password `simulator`) and run it normally.
