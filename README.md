@@ -83,6 +83,32 @@ with no test hooks. It could not tell the difference.
 That was one application. If you run a second one, an issue reporting what broke
 is the most useful contribution this project can get.
 
+## For a team
+
+Every developer runs their own copy; there is nothing shared to break and no
+credentials to hand out.
+
+```bash
+docker run -p 8090:8090 -p 2222:22 ghcr.io/nirmitee-tech/clearinghouse-simulator
+```
+
+or, for the full SFTP setup, clone the repo and `docker compose up`.
+
+**In automated tests**, run it as a service and drive it over HTTP: create a test
+patient bound to the outcome you want, use those details in your own fixtures,
+then assert on what your application did.
+
+```bash
+# arrange: this patient's claims will be denied for lack of prior authorization
+curl -s -X POST localhost:8090/api/patients -H 'Content-Type: application/json' \
+  -d '{"scenarios":["remit/06-denied-no-auth"]}'
+# → {"memberId":"748120553","firstName":"ROWAN","lastName":"TRIALWOOD", ...}
+```
+
+Set `speed` to `10000` in `POST /api/settings` and responses arrive immediately
+instead of on realistic delays — useful in CI, misleading anywhere a human is
+watching, because real remittances take days.
+
 ## Quick start
 
 ```bash

@@ -70,6 +70,41 @@ app.get('/api/stubs/:id(*)/preview', (q, res) => {
 app.post('/api/stubs/reload', (_q, res) => res.json({ loaded: engine.reloadStubs() }));
 app.post('/api/stubs/:id(*)/toggle', (q, res) =>
   res.json({ ok: engine.setStubEnabled(q.params.id, !!q.body?.enabled) }));
+// ─────────────────────────── clearinghouse REST leg ───────────────────────────
+// File exchange carries the transactions, but applications also authenticate
+// against the clearinghouse over HTTP and probe it for health. Pointing those at
+// a real clearinghouse from a developer machine means real credentials, so the
+// simulator answers them too: an OAuth2 client_credentials token endpoint and an
+// authenticated health probe.
+const issuedTokens = new Set();
+
+app.post('/oauth/token', (q, res) => {
+  const grant = (q.body && q.body.grant_type) || 'client_credentials';
+  if (grant !== 'client_credentials') {
+    return res.status(400).json({ error: 'unsupported_grant_type' });
+  }
+  // Any credential is accepted by design — the point is to exercise the caller's
+  // token handling, not to model the clearinghouse's account database.
+  const token = `sim.${Math.random().toString(36).slice(2)}.${Date.now().toString(36)}`;
+  issuedTokens.add(token);
+  trafficLog.add({
+    id: trafficLog.nextId(), at: new Date().toISOString(), source: 'rest',
+    transaction: 'oauth', summary: 'Access token issued (client_credentials)',
+    fileName: null, raw: '', matchedStub: null, matchTrace: [], deliveries: [],
+  });
+  res.json({ access_token: token, token_type: 'Bearer', expires_in: 3600, scope: 'claims eligibility' });
+});
+
+function bearerOk(req) {
+  const h = req.get('authorization') || '';
+  return h.startsWith('Bearer ') && issuedTokens.has(h.slice(7));
+}
+
+app.get('/health', (q, res) => {
+  if (!bearerOk(q)) return res.status(401).json({ error: 'invalid_token' });
+  res.json({ status: 'ok', service: 'clearinghouse-simulator', time: new Date().toISOString() });
+});
+
 // Test patients: mint an identity and register it against the chosen scenarios.
 app.get('/api/patients', (_q, res) => {
   const byMember = new Map(expectations.all().map(e => [`${e.key.value}::${e.transaction}`, e]));

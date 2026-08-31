@@ -1,0 +1,53 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --omit=dev || npm install --omit=dev
+
+      - name: Start the simulator
+        run: |
+          CM_PORT=8090 node src/index.js > /tmp/simulator.log 2>&1 &
+          for i in $(seq 1 40); do
+            sleep 0.5
+            curl -sf -o /dev/null http://localhost:8090/api/stubs && exit 0
+          done
+          echo "simulator did not start:"; cat /tmp/simulator.log; exit 1
+
+      - name: Scenario integrity
+        run: CM_BASE=http://localhost:8090 node test/scenarios.mjs
+
+      - name: Delivery routing and wire format
+        run: CM_BASE=http://localhost:8090 node test/delivery.mjs
+
+      - name: Engine behaviour
+        run: bash test/smoke.sh http://localhost:8090
+
+      - name: Simulator log on failure
+        if: failure()
+        run: cat /tmp/simulator.log
+
+  sftp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --omit=dev && pip install paramiko
+      - name: End to end over a real SFTP server
+        run: |
+          CM_PORT=8090 CM_INBOUND="$PWD/data/sftp/Upload" CM_OUTBOUND="$PWD/data/sftp/Download" \
+            node src/index.js > /tmp/simulator.log 2>&1 &
+          for i in $(seq 1 40); do sleep 0.5; curl -sf -o /dev/null http://localhost:8090/api/stubs && break; done
+          CM_BASE=http://localhost:8090 bash test/sftp-e2e.sh

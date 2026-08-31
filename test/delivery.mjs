@@ -86,6 +86,23 @@ ok('acknowledgements use the clientId.stamp.999 shape', !!acks && /\.\d{14}\.999
 const status = files.filter(f => f.file.endsWith('.CLP.277')).pop();
 ok('claim acknowledgements use the CLP.277 shape', !!status && /\.\d{14}\.CLP\.277$/.test(status.file), `got ${status?.file}`);
 
+console.log('4. the clearinghouse REST leg');
+const noTok = await fetch(BASE + '/health');
+chk('health probe without a token is refused', noTok.status, 401);
+const tokRes = await fetch(BASE + '/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ grant_type: 'client_credentials', client_id: 'x', client_secret: 'y' }) });
+const tok = await tokRes.json();
+ok('client_credentials returns a bearer token', !!tok.access_token && tok.token_type === 'Bearer',
+   `got ${JSON.stringify(tok).slice(0, 80)}`);
+ok('token carries an expiry', Number(tok.expires_in) > 0, `got ${tok.expires_in}`);
+const authed = await fetch(BASE + '/health', { headers: { Authorization: `Bearer ${tok.access_token}` } });
+chk('health probe with a valid token succeeds', authed.status, 200);
+const wrongGrant = await fetch(BASE + '/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ grant_type: 'password' }) });
+chk('an unsupported grant type is rejected', wrongGrant.status, 400);
+const forged = await fetch(BASE + '/health', { headers: { Authorization: 'Bearer not-a-real-token' } });
+chk('a forged token is refused', forged.status, 401);
+
 await post('/api/settings', { deliverTo: '', organizationId: '1', speed: 600 });
 console.log(`\n  ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
