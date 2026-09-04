@@ -220,7 +220,7 @@ Pinned scenarios are listed and can be created from the same screen.
 
 ## The scenario library
 
-120 scenarios across the full transaction set, each stating both what the
+210 scenarios across the full transaction set, each stating both what the
 practice sees and what comes back on the wire:
 
 | Group | Covers |
