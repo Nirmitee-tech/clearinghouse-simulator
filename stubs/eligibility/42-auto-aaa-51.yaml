@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 51: Provider not on file.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Provider not on file (AAA 51)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 51 — Provider not on file'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '51', aaaText: 'Provider not on file' }

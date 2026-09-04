@@ -1,0 +1,26 @@
+description: >
+  Auto-generated from production. RARC remark N381: Alert: consult our contractual agreement for restrictions/billing on this procedure. Travels with a denial CARC as its explanation.
+priority: 935
+match: { transaction: '837' }
+scenario:
+  title: 'Denied with remark — Alert: consult our contractual agreement for restrictions/billing on this procedure (N381)'
+  group: Remittance (835)
+  outcome: 'The denial carries remark N381 explaining why — read alongside the CARC.'
+  technical: 'CAS*CO*16 + LQ*HE*N381 (RARC) — Alert: consult our contractual agreement for restrictions/billing on this procedure'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 30s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A2:20', action: WQ, payerClaimRef: PYRRARC }
+  - transaction: '835'
+    delay: 10m
+    template: 835-generic.hbs
+    values:
+      clpStatus: '4'
+      paidAmount: '0.00'
+      patientResp: '0.00'
+      checkAmount: '0.00'
+      cas: [ 'CAS*CO*16*{{chargeAmount}}' ]
+      rarc: N381

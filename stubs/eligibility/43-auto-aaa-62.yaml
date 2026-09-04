@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 62: Date of service not within allowable inquiry period.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Date of service not within allowable inquiry period (AAA 62)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 62 — Date of service not within allowable inquiry period'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '62', aaaText: 'Date of service not within allowable inquiry period' }

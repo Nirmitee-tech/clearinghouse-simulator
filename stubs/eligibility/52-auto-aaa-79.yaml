@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 79: Invalid participant identification.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Invalid participant identification (AAA 79)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 79 — Invalid participant identification'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '79', aaaText: 'Invalid participant identification' }

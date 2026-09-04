@@ -296,3 +296,33 @@ Issues and pull requests are welcome, particularly new scenarios and profiles fo
 other clearinghouses.
 
 MIT licensed.
+
+## Adding a missing code (extendible)
+
+Every X12 code observed in real clearinghouse traffic ships with a scenario. When a
+new code turns up that isn't covered, add it in one command — no code editing:
+
+```bash
+# CARC adjustment (835)          group-reason
+node tools/add-code.mjs carc CO-253 "Sequestration - reduction in federal payment"
+
+# claim-status (277CA)           category-status
+node tools/add-code.mjs stc  A7-500 "Entity's Postal/Zip code"
+
+# eligibility reject (271)       AAA reason number
+node tools/add-code.mjs aaa  72     "Invalid/Missing Subscriber/Insured ID"
+
+# remittance remark (835)        RARC code
+node tools/add-code.mjs rarc N381   "Alert: consult our contractual agreement"
+```
+
+It writes a valid scenario into the right `stubs/` group, refuses to clobber an
+existing code, then tells you to reload the engine:
+
+```bash
+curl -s -X POST localhost:8090/api/stubs/reload
+```
+
+To rebuild coverage from a fresh corpus, re-run the generators:
+`node tools/gen-scenarios-from-corpus.mjs` and `node tools/gen-aaa-rarc.mjs`
+(they read the code lists in `/tmp/real_*.txt` produced by a corpus scan).

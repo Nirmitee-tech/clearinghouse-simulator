@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 75: Subscriber/insured not found.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Subscriber/insured not found (AAA 75)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 75 — Subscriber/insured not found'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '75', aaaText: 'Subscriber/insured not found' }

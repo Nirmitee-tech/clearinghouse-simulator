@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 15: Required application data missing.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Required application data missing (AAA 15)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 15 — Required application data missing'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '15', aaaText: 'Required application data missing' }

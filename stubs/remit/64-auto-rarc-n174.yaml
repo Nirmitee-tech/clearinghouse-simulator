@@ -1,0 +1,26 @@
+description: >
+  Auto-generated from production. RARC remark N174: This is not a covered service/procedure/equipment/bed. Travels with a denial CARC as its explanation.
+priority: 935
+match: { transaction: '837' }
+scenario:
+  title: 'Denied with remark — This is not a covered service/procedure/equipment/bed (N174)'
+  group: Remittance (835)
+  outcome: 'The denial carries remark N174 explaining why — read alongside the CARC.'
+  technical: 'CAS*CO*16 + LQ*HE*N174 (RARC) — This is not a covered service/procedure/equipment/bed'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 30s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A2:20', action: WQ, payerClaimRef: PYRRARC }
+  - transaction: '835'
+    delay: 10m
+    template: 835-generic.hbs
+    values:
+      clpStatus: '4'
+      paidAmount: '0.00'
+      patientResp: '0.00'
+      checkAmount: '0.00'
+      cas: [ 'CAS*CO*16*{{chargeAmount}}' ]
+      rarc: N174

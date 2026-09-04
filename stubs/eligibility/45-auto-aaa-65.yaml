@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 65: Invalid/missing patient name.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Invalid/missing patient name (AAA 65)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 65 — Invalid/missing patient name'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '65', aaaText: 'Invalid/missing patient name' }

@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 72: Invalid/missing subscriber/insured ID.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Invalid/missing subscriber/insured ID (AAA 72)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 72 — Invalid/missing subscriber/insured ID'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '72', aaaText: 'Invalid/missing subscriber/insured ID' }

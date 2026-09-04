@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason 78: Subscriber/insured not in group/plan identified.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Subscriber/insured not in group/plan identified (AAA 78)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = 78 — Subscriber/insured not in group/plan identified'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: '78', aaaText: 'Subscriber/insured not in group/plan identified' }

@@ -1,0 +1,15 @@
+description: >
+  Auto-generated from production. 271 AAA reject reason T4: Payer name or identifier missing.
+priority: 930
+match: { transaction: '270' }
+scenario:
+  title: 'Eligibility rejected — Payer name or identifier missing (AAA T4)'
+  group: Eligibility (271)
+  outcome: 'The payer refused the eligibility inquiry — correct the flagged field and re-verify.'
+  technical: 'AAA03 = T4 — Payer name or identifier missing'
+  seenInProduction: corpus
+respond:
+  - transaction: '271'
+    delay: 1m
+    template: 271-aaa.hbs
+    values: { aaaReason: 'T4', aaaText: 'Payer name or identifier missing' }
