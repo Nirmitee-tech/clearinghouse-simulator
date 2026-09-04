@@ -1,0 +1,23 @@
+description: >
+  Rejected — patient/member ID not found (A7:255). The single largest real rejection cause
+  (167 claims across the production pull). Wrong member ID or wrong payer ID. Retrying unchanged
+  fails forever — the member ID must be corrected, ideally caught at eligibility before the session.
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — patient/member ID not found'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Wrong member/payer ID. Fix the ID and resubmit; verifying eligibility first prevents it.'
+  technical: 'STC*A7:255 — real production reason "ENTITY NOT FOUND. - PATIENT"'
+respond:
+  - transaction: '999'
+    delay: 20s
+    template: 999-generic.hbs
+    values: { ak9: A, ik5: A }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values:
+      stc: 'A7:255:QC'
+      action: U
+      stcText: 'PATIENT and/or PATIENT ID not found in payers records. Verify the patient info matches the ID card and the correct Payer ID. X12 Info- 2010CA-NM126.ENTITY NOT FOUND. - PATIENT'

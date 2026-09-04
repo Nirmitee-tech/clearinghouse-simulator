@@ -1,0 +1,39 @@
+description: >
+  Issue 4 reproduction — a claim is REJECTED (A3), then a routine receipt acknowledgement
+  (A1 received) arrives LATER for the same claim. A correct app keeps it Rejected; the bug
+  walks it back to a healthy-looking state and it never reaches the denial queue. Modelled on
+  real production 277CA traffic where 206 claims were rejected but only 9 stayed visible.
+priority: 990
+match:
+  transaction: '837'
+sequenceKey: patientControlNumber
+sequence:
+  # hit 1 — the rejection
+  - respond:
+    - transaction: '999'
+      delay: 20s
+      template: 999-generic.hbs
+      values: { ak9: A, ik5: A }
+    - transaction: '277'
+      delay: 2m
+      template: 277ca-generic.hbs
+      values:
+        stc: 'A3:21:IL'
+        action: U
+        stcText: 'ACKNOWLEDGEMENT/REJECTED FOR INVALID INFORMATION - ENTITY NOT FOUND. PATIENT'
+  # hit 2 — a LATER receipt ack for the SAME claim (the overwriter)
+  - respond:
+    - transaction: '277'
+      delay: 30s
+      template: 277ca-generic.hbs
+      values:
+        stc: 'A1:19:AY'
+        action: WQ
+        stcText: 'CLAIM RECEIVED BY CLEARINGHOUSE'
+scenario:
+  title: 'Issue 4 — rejection then late receipt ack (the overwrite bug)'
+  group: Claim acknowledgement (277CA)
+  outcome: >
+    First submission rejects the claim; resubmit (or a duplicate) triggers hit 2, a receipt ack.
+    Verify the claim STAYS Rejected and is in the denial queue, not walked back to Acknowledged.
+  technical: 'sequence[0]=STC*A3:21 (reject), sequence[1]=STC*A1:19 (receipt) — rank must beat recency'

@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A2^21: Accepted — Missing or invalid information.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Accepted — Missing or invalid information (A2^21)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Accepted / received — progressing normally.'
+  technical: 'STC*A2:21 — Missing or invalid information'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A2:21', action: 'WQ', stcText: 'Missing or invalid information' }

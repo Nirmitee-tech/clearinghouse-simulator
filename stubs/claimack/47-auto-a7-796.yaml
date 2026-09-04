@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A7^796: Rejected — invalid information — There is data missing in the claim.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — invalid information — There is data missing in the claim (A7^796)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A7:796 — There is data missing in the claim'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A7:796', action: 'U', stcText: 'There is data missing in the claim' }

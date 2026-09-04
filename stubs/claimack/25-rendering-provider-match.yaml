@@ -1,0 +1,23 @@
+description: >
+  Rejected — rendering provider name matching required (A7). 23 production claims rejected because
+  the rendering providers name did not match the payers credentialing file. Enrollment issue, not
+  a data-entry one — flags a credentialing gap for that provider/payer combination.
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — rendering provider name matching'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Provider not matched in the payers file — a credentialing/enrollment gap to resolve.'
+  technical: 'STC*A7 — "RENDERING PROVIDER NAME MATCHING REQUIRED. 2310B-NM1"'
+respond:
+  - transaction: '999'
+    delay: 20s
+    template: 999-generic.hbs
+    values: { ak9: A, ik5: A }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values:
+      stc: 'A7:187:82'
+      action: U
+      stcText: 'Rendering provider Name Matching required. X12 Info- Prof-2310B-NM1.RENDERING PROVIDER NAME MATCHING REQUIRED'

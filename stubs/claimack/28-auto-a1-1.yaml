@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A1^1: Received — Entity acknowledges receipt of claim.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Received — Entity acknowledges receipt of claim (A1^1)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Accepted / received — progressing normally.'
+  technical: 'STC*A1:1 — Entity acknowledges receipt of claim'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A1:1', action: 'WQ', stcText: 'Entity acknowledges receipt of claim' }

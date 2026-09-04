@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A6^500: Rejected — missing information — Entity’s Postal/Zip code.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — missing information — Entity’s Postal/Zip code (A6^500)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A6:500 — Entity’s Postal/Zip code'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A6:500', action: 'U', stcText: 'Entity’s Postal/Zip code' }

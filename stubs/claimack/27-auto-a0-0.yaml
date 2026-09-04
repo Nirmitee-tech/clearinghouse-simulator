@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A0^0: Acknowledgement — Acknowledgement.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Acknowledgement — Acknowledgement (A0^0)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Pending — awaiting payer.'
+  technical: 'STC*A0:0 — Acknowledgement'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A0:0', action: 'WQ', stcText: 'Acknowledgement' }

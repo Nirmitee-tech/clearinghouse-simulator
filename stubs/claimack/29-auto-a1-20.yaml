@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A1^20: Received — Accepted for processing.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Received — Accepted for processing (A1^20)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Accepted / received — progressing normally.'
+  technical: 'STC*A1:20 — Accepted for processing'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A1:20', action: 'WQ', stcText: 'Accepted for processing' }

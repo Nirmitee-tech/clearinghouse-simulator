@@ -1,0 +1,25 @@
+description: >
+  Auto-generated from production. CO-226: Information requested from the billing/rendering provider was not provided.
+priority: 940
+match: { transaction: '837' }
+scenario:
+  title: 'Contractual write-off — Information requested from the billing/rendering provider was not provided (CO-226)'
+  group: Remittance (835)
+  outcome: 'Written off contractually — not billable to the patient.'
+  technical: 'CAS*CO*226 — Information requested from the billing/rendering provider was not provided'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 30s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A2:20', action: WQ, payerClaimRef: PYR226 }
+  - transaction: '835'
+    delay: 10m
+    template: 835-generic.hbs
+    values:
+      clpStatus: '1'
+      paidAmount: '{{allowedAmount}}'
+      patientResp: '0.00'
+      checkAmount: '{{allowedAmount}}'
+      cas: [ 'CAS*CO*226*{{chargeAmount}}' ]

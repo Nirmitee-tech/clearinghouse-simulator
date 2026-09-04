@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A3^562: Returned as unprocessable / rejected — Entity’s National Provider Identifier (NPI).
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Returned as unprocessable / rejected — Entity’s National Provider Identifier (NPI) (A3^562)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A3:562 — Entity’s National Provider Identifier (NPI)'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A3:562', action: 'U', stcText: 'Entity’s National Provider Identifier (NPI)' }

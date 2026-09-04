@@ -1,0 +1,23 @@
+description: >
+  Rejected — invalid/non-billable primary diagnosis (A3, 2300-HI). 94 production claims rejected
+  for leading with a psychosocial Z-code (Z63/Z56/Z62) or a non-specific code the payer wont accept
+  as primary. Use to verify the scrubber blocks unbillable primary diagnoses (issue 14).
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — invalid primary diagnosis (Z-code)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Z-code used as primary diagnosis. Enforce a billable F-code first before transmit.'
+  technical: 'STC*A3 — "Health Care Diagnosis Code (Z63) is invalid ... 2300-HI"'
+respond:
+  - transaction: '999'
+    delay: 20s
+    template: 999-generic.hbs
+    values: { ak9: A, ik5: A }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values:
+      stc: 'A3:585:PR'
+      action: U
+      stcText: 'Health Care Diagnosis Code (Z63) is invalid. Must be a valid Diagnosis Code for the date of service. X12 INFO- 2300-HI'

@@ -1,0 +1,23 @@
+description: >
+  Rejected — entity not eligible for benefits for the submitted date of service (A3). 32 production
+  claims where coverage was inactive on the DOS. The eligibility 270/271 check before the session
+  would have caught this — ties to issues 12/20/21.
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — not eligible for date of service'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Coverage inactive on the service date. Earlier eligibility verification prevents it.'
+  technical: 'STC*A3 — "ENTITY NOT ELIGIBLE FOR BENEFITS FOR SUBMITTED DATES OF SERVICE"'
+respond:
+  - transaction: '999'
+    delay: 20s
+    template: 999-generic.hbs
+    values: { ak9: A, ik5: A }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values:
+      stc: 'A3:585:IL'
+      action: U
+      stcText: 'ACK REJECTED FOR INVALID INFORMATION. ENTITY NOT ELIGIBLE FOR BENEFITS FOR SUBMITTED DATES OF SERVICE. INSURED OR SUBSCRIBER'

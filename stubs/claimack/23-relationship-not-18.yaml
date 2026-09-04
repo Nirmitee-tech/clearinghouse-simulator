@@ -1,0 +1,23 @@
+description: >
+  Rejected — patient relationship to insured invalid, must be 18 self (A3 on SBR02). This is an
+  APP FORMAT BUG: 19 production claims rejected because the 837 emitted a relationship code other
+  than 18 even though the subscriber IS self. Use to verify the SBR02 generator fix.
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — SBR02 relationship not 18 (format bug)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'The 837 sent the wrong SBR02 relationship code. Fix the generator to emit 18 for self.'
+  technical: 'STC*A3 — "PATIENT RELATIONSHIP TO INSURED IS INVALID. MUST BE (18) FOR PAYER. 2000B-SBR02"'
+respond:
+  - transaction: '999'
+    delay: 20s
+    template: 999-generic.hbs
+    values: { ak9: A, ik5: A }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values:
+      stc: 'A3:153:IL'
+      action: U
+      stcText: 'PATIENT RELATIONSHIP TO INSURED IS INVALID. MUST BE (18) FOR PAYER. X12 Info- 2000B-SBR02'

@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A8^477: Rejected — relational field error — Diagnosis code.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — relational field error — Diagnosis code (A8^477)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A8:477 — Diagnosis code'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A8:477', action: 'U', stcText: 'Diagnosis code' }

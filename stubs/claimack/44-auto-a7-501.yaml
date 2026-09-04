@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A7^501: Rejected — invalid information — Status 501.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — invalid information — Status 501 (A7^501)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A7:501 — Status 501'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A7:501', action: 'U', stcText: 'Status 501' }

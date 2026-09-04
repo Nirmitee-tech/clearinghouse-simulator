@@ -1,0 +1,24 @@
+description: Patient owes — services not provided by network provider (PR-242). Seen in the production pull.
+priority: 950
+match: { transaction: '837' }
+scenario:
+  title: Patient owes — non-network provider (PR-242)
+  group: Remittance (835)
+  outcome: The payer assigns the charge to the patient because the provider is out of network.
+  technical: 'CAS*PR*242 (services not provided by network/primary care provider) — patient responsibility'
+  seenInProduction: real production pull
+respond:
+  - { transaction: '999', delay: 30s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A2:20', action: WQ, payerClaimRef: PYR242 }
+  - transaction: '835'
+    delay: 10m
+    template: 835-generic.hbs
+    values:
+      clpStatus: '4'
+      paidAmount: '0.00'
+      patientResp: '{{chargeAmount}}'
+      checkAmount: '0.00'
+      cas: [ 'CAS*PR*242*{{chargeAmount}}' ]

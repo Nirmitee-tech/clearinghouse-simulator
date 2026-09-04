@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC P5^46: Pending — patient — Awaiting supporting documentation.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Pending — patient — Awaiting supporting documentation (P5^46)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Pending — awaiting payer.'
+  technical: 'STC*P5:46 — Awaiting supporting documentation'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'P5:46', action: 'WQ', stcText: 'Awaiting supporting documentation' }

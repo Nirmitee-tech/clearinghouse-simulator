@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A3^26: Returned as unprocessable / rejected — Entity not found — patient.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Returned as unprocessable / rejected — Entity not found — patient (A3^26)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A3:26 — Entity not found — patient'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A3:26', action: 'U', stcText: 'Entity not found — patient' }

@@ -1,0 +1,16 @@
+description: >
+  Auto-generated from production. STC A7^743: Rejected — invalid information — Diagnosis code(s) for the services rendered.
+priority: 930
+match: { transaction: '837' }
+scenario:
+  title: 'Rejected — invalid information — Diagnosis code(s) for the services rendered (A7^743)'
+  group: Claim acknowledgement (277CA)
+  outcome: 'Rejected before adjudication — correct the flagged data and resubmit.'
+  technical: 'STC*A7:743 — Diagnosis code(s) for the services rendered'
+  seenInProduction: corpus
+respond:
+  - { transaction: '999', delay: 20s, template: 999-generic.hbs, values: { ak9: A, ik5: A } }
+  - transaction: '277'
+    delay: 2m
+    template: 277ca-generic.hbs
+    values: { stc: 'A7:743', action: 'U', stcText: 'Diagnosis code(s) for the services rendered' }
