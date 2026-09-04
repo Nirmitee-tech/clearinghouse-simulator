@@ -10,6 +10,7 @@ import express from 'express';
 import { createEngine } from './engine/core.js';
 import { createTrafficLog } from './engine/traffic.js';
 import { createFileStore } from './engine/expectations.js';
+import { buildScenario, writeScenario } from './engine/scenario-builder.js';
 import { generateIdentity, bindingsFor } from './engine/patients.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -68,6 +69,20 @@ app.get('/api/stubs/:id(*)/preview', (q, res) => {
   res.json(out);
 });
 app.post('/api/stubs/reload', (_q, res) => res.json({ loaded: engine.reloadStubs() }));
+
+// Author a scenario for a missing X12 code from the UI (or any client). Same builder
+// the CLI uses, so the two never drift. Writes the stub, reloads, returns the new id.
+app.post('/api/scenarios', (req, res) => {
+  try {
+    const built = buildScenario(req.body || {}, CFG.stubs);
+    const id = writeScenario(built);
+    const loaded = engine.reloadStubs();
+    res.json({ id, group: built.group, loaded });
+  } catch (e) {
+    const status = e.code === 'exists' ? 409 : e.code ? 400 : 500;
+    res.status(status).json({ error: e.code || 'error', message: e.message || String(e) });
+  }
+});
 app.post('/api/stubs/:id(*)/toggle', (q, res) =>
   res.json({ ok: engine.setStubEnabled(q.params.id, !!q.body?.enabled) }));
 // ─────────────────────────── clearinghouse REST leg ───────────────────────────

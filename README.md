@@ -299,30 +299,57 @@ MIT licensed.
 
 ## Adding a missing code (extendible)
 
-Every X12 code observed in real clearinghouse traffic ships with a scenario. When a
-new code turns up that isn't covered, add it in one command — no code editing:
+The simulator ships a scenario for **every** X12 code observed in real clearinghouse
+traffic — 210+ across eligibility (271), claim acknowledgement (277CA) and remittance
+(835). When a payer returns a code that isn't yet covered, add it three ways, all backed
+by the **same builder** (`src/engine/scenario-builder.js`) so they never drift:
+
+### 1. From the UI (no terminal)
+
+Open the simulator (`http://localhost:8090`) and use the **"Add a scenario for a missing
+code"** panel: pick the code type, enter the code and an optional description, click **Add**.
+The scenario is written, the engine reloads live, and the list filters to your new code.
+
+### 2. From the API
 
 ```bash
-# CARC adjustment (835)          group-reason
+curl -s -X POST localhost:8090/api/scenarios \
+  -H 'Content-Type: application/json' \
+  -d '{"type":"carc","code":"CO-253","description":"Sequestration reduction"}'
+# -> {"id":"remit/NN-custom-co-253","group":"remit","loaded":211}
+```
+
+Returns `409` if the code already has a scenario, `400` on a malformed code.
+
+### 3. From the CLI
+
+```bash
 node tools/add-code.mjs carc CO-253 "Sequestration - reduction in federal payment"
-
-# claim-status (277CA)           category-status
 node tools/add-code.mjs stc  A7-500 "Entity's Postal/Zip code"
-
-# eligibility reject (271)       AAA reason number
 node tools/add-code.mjs aaa  72     "Invalid/Missing Subscriber/Insured ID"
-
-# remittance remark (835)        RARC code
 node tools/add-code.mjs rarc N381   "Alert: consult our contractual agreement"
 ```
 
-It writes a valid scenario into the right `stubs/` group, refuses to clobber an
-existing code, then tells you to reload the engine:
+### Code types
+
+| Type   | Transaction        | Code format            | Example   |
+|--------|--------------------|------------------------|-----------|
+| `carc` | Remittance (835)   | `GROUP-REASON`         | `CO-253`  |
+| `stc`  | Claim ack (277CA)  | `CATEGORY-STATUS`      | `A7-500`  |
+| `aaa`  | Eligibility (271)  | reason number          | `72`      |
+| `rarc` | Remittance (835)   | remark code            | `N381`    |
+
+All three paths refuse to clobber an existing code and produce a valid, reloadable stub.
+
+### Rebuilding coverage from a fresh corpus
+
+After pulling new clearinghouse files, regenerate the full scenario set:
 
 ```bash
-curl -s -X POST localhost:8090/api/stubs/reload
+node tools/gen-scenarios-from-corpus.mjs   # CARC + claim-status codes
+node tools/gen-aaa-rarc.mjs                # AAA eligibility + RARC remark codes
 ```
 
-To rebuild coverage from a fresh corpus, re-run the generators:
-`node tools/gen-scenarios-from-corpus.mjs` and `node tools/gen-aaa-rarc.mjs`
-(they read the code lists in `/tmp/real_*.txt` produced by a corpus scan).
+Both read the code lists in `/tmp/real_*.txt` produced by scanning the corpus, so
+coverage always tracks what the practice actually receives — no theoretical codes,
+and any genuinely new one is one command away.

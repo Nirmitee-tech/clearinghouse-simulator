@@ -62,6 +62,12 @@ button.primary:disabled{opacity:.4;cursor:not-allowed}
 .log .row:last-child{border-bottom:0}
 .log .tag{font-family:'IBM Plex Mono',monospace;font-size:.77rem;color:var(--accent);min-width:32px}
 .log .when{color:var(--muted);font-size:.77rem;margin-left:auto;white-space:nowrap}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.addrow select,.addrow input{padding:7px 9px;border:1px solid var(--line,#d9dde2);border-radius:7px;font:inherit;background:var(--card,#fff);color:inherit}
+.addrow #addCode{width:120px;font-family:ui-monospace,Menlo,monospace}
+.addrow #addDesc{flex:1;min-width:180px}
+.addhint{margin-top:9px;font-size:.86rem}
+.addhint code{font-family:ui-monospace,Menlo,monospace;background:rgba(127,127,127,.14);padding:1px 5px;border-radius:4px}
 </style></head><body>
 <header>
   <h1>Clearinghouse Simulator</h1>
@@ -80,6 +86,23 @@ button.primary:disabled{opacity:.4;cursor:not-allowed}
       <button class="primary" id="gen" disabled>Generate patient</button>
       <span class="empty" id="genhint">Nothing selected.</span>
     </div>
+  </div>
+
+  <div class="panel" id="addPanel">
+    <h2 style="margin-top:0">Add a scenario for a missing code</h2>
+    <div class="empty" style="margin-bottom:10px">Covers every code in live traffic already. Use this when a payer returns one that isn't listed.</div>
+    <div class="addrow">
+      <select id="addType">
+        <option value="carc">CARC — remittance adjustment (835)</option>
+        <option value="stc">STC — claim status (277CA)</option>
+        <option value="aaa">AAA — eligibility reject (271)</option>
+        <option value="rarc">RARC — remittance remark (835)</option>
+      </select>
+      <input id="addCode" placeholder="code" autocomplete="off">
+      <input id="addDesc" placeholder="description (optional)" autocomplete="off">
+      <button class="primary" id="addBtn">Add</button>
+    </div>
+    <div class="addhint empty" id="addHint">CARC: GROUP-REASON e.g. <code>CO-253</code> · STC: CATEGORY-STATUS e.g. <code>A7-500</code> · AAA: <code>72</code> · RARC: <code>N381</code></div>
   </div>
 
   <h2>Your test patients</h2>
@@ -200,5 +223,24 @@ $('#gen').onclick=async()=>{
 $('#q').oninput=e=>{filter=e.target.value;draw()};
 $('#speed').onchange=e=>fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},
   body:JSON.stringify({speed:Number(e.target.value)})});
-draw(); setInterval(()=>{if(!document.querySelector('#q:focus'))draw()},4000);
+
+const HINTS={carc:"CARC: GROUP-REASON e.g. <code>CO-253</code> (CO write-off · PR patient · OA/PI other)",
+  stc:"STC: CATEGORY-STATUS e.g. <code>A7-500</code> (A3/A7 reject · A1 received · A2 accepted)",
+  aaa:"AAA: eligibility reject reason number e.g. <code>72</code>",
+  rarc:"RARC: remittance remark code e.g. <code>N381</code>"};
+$('#addType').onchange=e=>{$('#addHint').innerHTML=HINTS[e.target.value];};
+$('#addBtn').onclick=async()=>{
+  const type=$('#addType').value, code=$('#addCode').value.trim(), description=$('#addDesc').value.trim();
+  if(!code){$('#addHint').innerHTML='<span style="color:#b45">Enter a code first.</span>';return;}
+  $('#addBtn').disabled=true;
+  const r=await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type,code,description})});
+  const j=await r.json(); $('#addBtn').disabled=false;
+  if(r.ok){$('#addCode').value='';$('#addDesc').value='';
+    $('#addHint').innerHTML=`<span style="color:#2b6046">Added <b>${esc(j.id)}</b> — ${j.loaded} scenarios loaded. Find it in the list below.</span>`;
+    filter=code; $('#q').value=code; await draw();}
+  else{$('#addHint').innerHTML=`<span style="color:#b45">${esc(j.message||'Could not add')}</span>`;}
+};
+
+draw(); setInterval(()=>{if(!document.querySelector('#q:focus')&&!document.querySelector('#addCode:focus'))draw()},4000);
 </script></body></html>
