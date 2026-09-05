@@ -8,6 +8,7 @@
 // interpolated value is YAML-escaped, and the final path is confined to its group dir.
 import fs from 'fs';
 import path from 'path';
+import { describe } from './code-catalog.js';
 
 const GROUP_DIR = { carc: 'remit', rarc: 'remit', stc: 'claimack', aaa: 'eligibility' };
 
@@ -47,7 +48,8 @@ export function buildScenario({ type, code, description }, stubsRoot) {
   if (!CODE_RE[type].test(code)) {
     throw { code: 'bad_code', message: `code "${yq(code)}" is not a valid ${type.toUpperCase()} code` };
   }
-  const desc = yq(description); // escaped once, safe to interpolate everywhere below
+  // Use the given description, else auto-fill from the X12 catalogue for a known code.
+  const desc = yq(description) || yq(describe(type, code)); // escaped, safe to interpolate below
 
   const dir = path.join(stubsRoot, GROUP_DIR[type]);
 

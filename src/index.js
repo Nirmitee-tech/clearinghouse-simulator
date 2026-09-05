@@ -12,6 +12,7 @@ import { createTrafficLog } from './engine/traffic.js';
 import { createFileStore } from './engine/expectations.js';
 import { buildScenario, writeScenario } from './engine/scenario-builder.js';
 import { createProfileStore, resolveProfile } from './engine/profiles.js';
+import { describe } from './engine/code-catalog.js';
 import { generateIdentity, bindingsFor } from './engine/patients.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -75,6 +76,12 @@ app.post('/api/stubs/reload', (_q, res) => res.json({ loaded: engine.reloadStubs
 
 // Author a scenario for a missing X12 code from the UI (or any client). Same builder
 // the CLI uses, so the two never drift. Writes the stub, reloads, returns the new id.
+// Look up the X12 description for a code so the UI can auto-fill it (keeps the
+// add-code flow usable for any code without a bloated on-screen list).
+app.get('/api/codes/describe', (q, res) => {
+  res.json({ description: describe(String(q.query.type || ''), String(q.query.code || '')) });
+});
+
 app.post('/api/scenarios', (req, res) => {
   try {
     const built = buildScenario(req.body || {}, CFG.stubs);

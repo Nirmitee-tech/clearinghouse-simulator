@@ -330,6 +330,16 @@ node tools/add-code.mjs aaa  72     "Invalid/Missing Subscriber/Insured ID"
 node tools/add-code.mjs rarc N381   "Alert: consult our contractual agreement"
 ```
 
+### Code descriptions are auto-filled
+
+You don't need to know the X12 wording. Type just the code and the description is
+filled from a built-in catalogue (73 CARC, 29 RARC, 30 claim-status, 37 AAA codes,
+plus every code seen in the corpus). Unknown codes still work — the description is
+simply left blank for you to type. This keeps every code addable without a
+bloated on-screen list: the scenario list shows only what's actually created.
+
+Lookup endpoint: `GET /api/codes/describe?type=carc&code=CO-253`.
+
 ### Code types
 
 | Type   | Transaction        | Code format            | Example   |

@@ -241,7 +241,18 @@ const HINTS={carc:"CARC: GROUP-REASON e.g. <code>CO-253</code> (CO write-off · 
   stc:"STC: CATEGORY-STATUS e.g. <code>A7-500</code> (A3/A7 reject · A1 received · A2 accepted)",
   aaa:"AAA: eligibility reject reason number e.g. <code>72</code>",
   rarc:"RARC: remittance remark code e.g. <code>N381</code>"};
-$('#addType').onchange=e=>{$('#addHint').innerHTML=HINTS[e.target.value];};
+$('#addType').onchange=e=>{$('#addHint').innerHTML=HINTS[e.target.value];lookupCode();};
+let lookupTimer;
+async function lookupCode(){
+  const type=$('#addType').value, code=$('#addCode').value.trim();
+  if(!code) return;
+  const j=await get('/api/codes/describe?type='+encodeURIComponent(type)+'&code='+encodeURIComponent(code));
+  if(j.description){
+    if(!$('#addDesc').value) $('#addDesc').value=j.description;   // auto-fill, don't clobber typing
+    $('#addHint').innerHTML=`<span style="color:#2b6046">Known code — ${esc(j.description)}</span>`;
+  }
+}
+$('#addCode').oninput=()=>{clearTimeout(lookupTimer);lookupTimer=setTimeout(lookupCode,300);};
 $('#addBtn').onclick=async()=>{
   const type=$('#addType').value, code=$('#addCode').value.trim(), description=$('#addDesc').value.trim();
   if(!code){$('#addHint').innerHTML='<span style="color:#b45">Enter a code first.</span>';return;}
