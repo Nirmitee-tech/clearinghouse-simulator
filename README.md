@@ -353,3 +353,25 @@ node tools/gen-aaa-rarc.mjs                # AAA eligibility + RARC remark codes
 Both read the code lists in `/tmp/real_*.txt` produced by scanning the corpus, so
 coverage always tracks what the practice actually receives — no theoretical codes,
 and any genuinely new one is one command away.
+
+## Matcher predicates
+
+A stub's `match` block supports these condition forms on any extracted field
+(`transaction`, `memberId`, `patientControlNumber`, `payerId`, …):
+
+| Form | Meaning |
+|------|---------|
+| `field: value` | literal equality |
+| `{startsWith}` / `{endsWith}` / `{contains}` | substring |
+| `{regex: '...'}` | regular expression |
+| `{oneOf: [a, b]}` | value is one of |
+| `{gt: n}` / `{lt: n}` | numeric compare |
+| `{exists: true/false}` | field present / absent |
+| `{not: <cond>}` | negation |
+| `{and: [<cond>, ...]}` | all sub-conditions pass |
+| `{or: [<cond>, ...]}` | any sub-condition passes |
+
+`and` / `or` / `not` compose recursively, e.g.
+`transaction: { and: [ { startsWith: '8' }, { not: { endsWith: '0' } } ] }`.
+Fields absent from `match` are unconstrained; all present conditions must pass
+(lowest `priority` number wins across stubs).

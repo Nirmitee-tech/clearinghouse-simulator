@@ -34,12 +34,21 @@ export function loadStubs(stubsDir) {
 }
 
 // Condition forms: literal equality, {endsWith}, {startsWith}, {contains},
+// {exists}, {not}, {and:[]}, {or:[]} (composable),
 // {regex}, {oneOf: []}, {gt}/{lt} (numeric). Fields not present in `match`
 // are unconstrained. All present conditions must pass.
 function condPass(cond, value) {
+  const present = value != null && String(value) !== '';
   const v = value == null ? '' : String(value);
   if (cond == null) return true;
   if (typeof cond !== 'object') return v === String(cond) || Number(v) === Number(cond);
+  // Boolean composition (Mountebank parity): compose other conditions.
+  if ('not' in cond) return !condPass(cond.not, value);
+  if ('and' in cond) return cond.and.every(c => condPass(c, value));
+  if ('or' in cond) return cond.or.some(c => condPass(c, value));
+  // Presence.
+  if ('exists' in cond) return cond.exists ? present : !present;
+  // Leaf predicates.
   if ('endsWith' in cond) return v.endsWith(String(cond.endsWith));
   if ('startsWith' in cond) return v.startsWith(String(cond.startsWith));
   if ('contains' in cond) return v.includes(String(cond.contains));

@@ -1,10 +1,30 @@
 // Shared scenario authoring — turns a single X12 code into a valid stub.
 // Used by both the CLI (tools/add-code.mjs) and the UI endpoint (POST /api/scenarios),
 // so the two can never drift.
+//
+// Security: `code` becomes part of a filename AND is interpolated into YAML, and
+// `description` is interpolated into YAML — both can arrive from an untrusted HTTP
+// client. So: codes are validated against a strict per-type allowlist, every
+// interpolated value is YAML-escaped, and the final path is confined to its group dir.
 import fs from 'fs';
 import path from 'path';
 
 const GROUP_DIR = { carc: 'remit', rarc: 'remit', stc: 'claimack', aaa: 'eligibility' };
+
+// Strict allowlists per code type. Anything outside these shapes is rejected before
+// it can reach the filesystem or the YAML.
+const CODE_RE = {
+  carc: /^[A-Z]{2,4}-[A-Z0-9]{1,6}$/, // GROUP-REASON, e.g. CO-45, PR-3
+  stc: /^[A-Z][0-9A-Z]{0,3}-[A-Z0-9]{1,6}$/, // CATEGORY-STATUS, e.g. A7-255
+  aaa: /^[A-Z0-9]{1,6}$/, // reason number/code, e.g. 72, T4
+  rarc: /^[A-Z][0-9A-Z]{1,9}$/, // remark, e.g. N381, M115
+};
+
+// YAML-escape for a single-quoted scalar: collapse control chars/newlines to a space
+// (so a value can never open a new YAML key), then double any single quotes.
+// eslint-disable-next-line no-control-regex
+const CTRL = new RegExp('[\\u0000-\\u001f\\u007f]+', 'g');
+const yq = s => String(s ?? '').replace(CTRL, ' ').replace(/'/g, "''").trim();
 
 function nextNum(dir) {
   const nums = fs.existsSync(dir)
@@ -18,21 +38,21 @@ function existingEmit(dir, needle) {
   return fs.readdirSync(dir).some(f => fs.readFileSync(path.join(dir, f), 'utf8').includes(needle));
 }
 
-const slugify = s => s.replace(/[^A-Za-z0-9]+/g, '-').toLowerCase().replace(/^-|-$/g, '');
-
 // Returns { yaml, group, dir, slug } or throws { code, message } on a bad/duplicate input.
 export function buildScenario({ type, code, description }, stubsRoot) {
   type = String(type || '').toLowerCase();
   code = String(code || '').toUpperCase().trim();
-  const desc = String(description || '').trim();
-  if (!GROUP_DIR[type]) throw { code: 'bad_type', message: `type must be carc | stc | aaa | rarc` };
+  if (!GROUP_DIR[type]) throw { code: 'bad_type', message: 'type must be carc | stc | aaa | rarc' };
   if (!code) throw { code: 'bad_code', message: 'code is required' };
+  if (!CODE_RE[type].test(code)) {
+    throw { code: 'bad_code', message: `code "${yq(code)}" is not a valid ${type.toUpperCase()} code` };
+  }
+  const desc = yq(description); // escaped once, safe to interpolate everywhere below
 
   const dir = path.join(stubsRoot, GROUP_DIR[type]);
 
   if (type === 'carc') {
-    const [grp, reason] = code.split('-');
-    if (!grp || !reason) throw { code: 'bad_code', message: 'CARC must be GROUP-REASON, e.g. CO-45' };
+    const [grp, reason] = code.split('-'); // both already [A-Z0-9] via CODE_RE
     if (existingEmit(dir, `CAS*${grp}*${reason}*`)) throw { code: 'exists', message: `CAS*${grp}*${reason} already has a scenario` };
     const isPR = grp === 'PR', isCO = grp === 'CO';
     const d = desc || `Adjustment reason ${reason}`;
@@ -67,12 +87,11 @@ respond:
   }
 
   if (type === 'stc') {
-    const [cat, st] = code.split('-');
-    if (!cat || !st) throw { code: 'bad_code', message: 'STC must be CATEGORY-STATUS, e.g. A7-255' };
+    const [cat, st] = code.split('-'); // both already [A-Z0-9] via CODE_RE
     if (existingEmit(dir, `stc: '${cat}:${st}'`)) throw { code: 'exists', message: `STC ${cat}:${st} already has a scenario` };
     const rejected = /^A[3678]$/.test(cat);
     const d = desc || `Status ${st}`;
-    const slug = `${nextNum(dir)}-custom-${cat.toLowerCase()}-${st}`;
+    const slug = `${nextNum(dir)}-custom-${cat.toLowerCase()}-${st.toLowerCase()}`;
     const yaml = `description: >
   Custom-added via UI/CLI. STC ${cat}^${st}: ${d}.
 priority: 930
@@ -88,7 +107,7 @@ respond:
   - transaction: '277'
     delay: 2m
     template: 277ca-generic.hbs
-    values: { stc: '${cat}:${st}', action: '${rejected ? 'U' : 'WQ'}', stcText: '${d.replace(/'/g, '')}' }
+    values: { stc: '${cat}:${st}', action: '${rejected ? 'U' : 'WQ'}', stcText: '${d}' }
 `;
     return { yaml, group: 'claimack', dir, slug };
   }
@@ -96,7 +115,7 @@ respond:
   if (type === 'aaa') {
     if (existingEmit(dir, `aaaReason: '${code}'`)) throw { code: 'exists', message: `AAA ${code} already has a scenario` };
     const d = desc || `Eligibility reject reason ${code}`;
-    const slug = `${nextNum(dir)}-custom-aaa-${slugify(code)}`;
+    const slug = `${nextNum(dir)}-custom-aaa-${code.toLowerCase()}`;
     const yaml = `description: >
   Custom-added via UI/CLI. 271 AAA reject reason ${code}: ${d}.
 priority: 930
@@ -111,7 +130,7 @@ respond:
   - transaction: '271'
     delay: 1m
     template: 271-aaa.hbs
-    values: { aaaReason: '${code}', aaaText: '${d.replace(/'/g, '')}' }
+    values: { aaaReason: '${code}', aaaText: '${d}' }
 `;
     return { yaml, group: 'eligibility', dir, slug };
   }
@@ -121,7 +140,7 @@ respond:
     throw { code: 'exists', message: `RARC ${code} already referenced` };
   }
   const d = desc || `Remittance advice remark ${code}`;
-  const slug = `${nextNum(dir)}-custom-rarc-${slugify(code)}`;
+  const slug = `${nextNum(dir)}-custom-rarc-${code.toLowerCase()}`;
   const yaml = `description: >
   Custom-added via UI/CLI. RARC remark ${code}: ${d}. Travels with a denial CARC as its explanation.
 priority: 935
@@ -152,10 +171,14 @@ respond:
   return { yaml, group: 'remit', dir, slug };
 }
 
-// Writes the built scenario to disk. Returns the relative stub id.
+// Writes the built scenario to disk. Confines the resolved path to the group dir as a
+// belt-and-suspenders check on top of the strict code validation in buildScenario.
 export function writeScenario(built) {
   fs.mkdirSync(built.dir, { recursive: true });
-  const file = path.join(built.dir, `${built.slug}.yaml`);
+  const file = path.resolve(built.dir, `${built.slug}.yaml`);
+  if (!file.startsWith(path.resolve(built.dir) + path.sep)) {
+    throw { code: 'bad_code', message: 'refusing to write outside the scenario directory' };
+  }
   if (fs.existsSync(file)) throw { code: 'exists', message: `${built.slug} already exists` };
   fs.writeFileSync(file, built.yaml);
   return `${built.group}/${built.slug}`;
