@@ -79,6 +79,19 @@ button.primary:disabled{opacity:.4;cursor:not-allowed}
   </select></span>
 </header>
 <main>
+  <div class="panel" id="profilePanel">
+    <h2 style="margin-top:0">Profiles — configure a whole test set in one go</h2>
+    <div class="empty" style="margin-bottom:10px">Apply a named bundle of scenarios; it mints one patient carrying the whole group. Save the current selection as a new profile.</div>
+    <div class="addrow">
+      <select id="profileSel"><option value="">— pick a profile —</option></select>
+      <button class="primary" id="applyProfile">Apply</button>
+      <span style="flex:1"></span>
+      <input id="profileName" placeholder="save current picks as…" autocomplete="off">
+      <button id="saveProfile">Save profile</button>
+    </div>
+    <div class="addhint empty" id="profileHint"></div>
+  </div>
+
   <div class="panel">
     <h2 style="margin-top:0">Choose the outcomes, then generate a patient to carry them</h2>
     <div id="opts"></div>
@@ -241,6 +254,32 @@ $('#addBtn').onclick=async()=>{
     filter=code; $('#q').value=code; await draw();}
   else{$('#addHint').innerHTML=`<span style="color:#b45">${esc(j.message||'Could not add')}</span>`;}
 };
+
+async function drawProfiles(){
+  const ps=await get('/api/profiles');
+  const sel=$('#profileSel');
+  sel.innerHTML='<option value="">— pick a profile —</option>'+
+    ps.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} (${p.scenarioCount})</option>`).join('');
+}
+$('#applyProfile').onclick=async()=>{
+  const id=$('#profileSel').value; if(!id){$('#profileHint').textContent='Pick a profile first.';return;}
+  $('#applyProfile').disabled=true;
+  const r=await fetch('/api/profiles/'+id+'/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+  const j=await r.json(); $('#applyProfile').disabled=false;
+  if(r.ok){$('#profileHint').innerHTML=`<span style="color:#2b6046">Applied <b>${esc(j.profile)}</b> — ${j.scenarios} scenarios on patient ${esc(j.patient.memberId)}. See it under Your test patients.</span>`;draw();}
+  else $('#profileHint').innerHTML=`<span style="color:#b45">${esc(j.message||'Could not apply')}</span>`;
+};
+$('#saveProfile').onclick=async()=>{
+  const name=$('#profileName').value.trim();
+  if(!name){$('#profileHint').textContent='Enter a name for the profile.';return;}
+  if(!picked.size){$('#profileHint').textContent='Select some scenarios first (below), then save.';return;}
+  const r=await fetch('/api/profiles',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,scenarios:[...picked]})});
+  const j=await r.json();
+  if(r.ok){$('#profileName').value='';$('#profileHint').innerHTML=`<span style="color:#2b6046">Saved profile <b>${esc(name)}</b> with ${picked.size} scenarios.</span>`;drawProfiles();}
+  else $('#profileHint').innerHTML=`<span style="color:#b45">${esc(j.message||'Could not save')}</span>`;
+};
+drawProfiles();
 
 draw(); setInterval(()=>{if(!document.querySelector('#q:focus')&&!document.querySelector('#addCode:focus'))draw()},4000);
 </script></body></html>

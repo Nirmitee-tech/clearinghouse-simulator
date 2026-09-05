@@ -375,3 +375,25 @@ A stub's `match` block supports these condition forms on any extracted field
 `transaction: { and: [ { startsWith: '8' }, { not: { endsWith: '0' } } ] }`.
 Fields absent from `match` are unconstrained; all present conditions must pass
 (lowest `priority` number wins across stubs).
+
+## Profiles — configure a whole test set in one go
+
+A profile is a named bundle of scenarios in `profiles/*.yaml`. Applying one mints a
+single patient carrying the whole group, so a complete test setup is one click
+instead of picking scenarios individually.
+
+```yaml
+name: Denials & rejections
+description: Every rejection and denial path
+scenarios:
+  - claimack/22-patient-id-not-found     # exact stub id
+  - remit/06-*                           # glob against stub ids
+  - group: Remittance (835)              # every stub in a group
+```
+
+- **UI**: the Profiles panel — pick a profile, Apply; or select scenarios and Save as a new profile.
+- **API**: `GET /api/profiles`, `POST /api/profiles` (`{name, description, scenarios}`),
+  `POST /api/profiles/:id/apply` (mints the bound patient).
+
+Ships with: happy-path, denials-and-rejections, patient-responsibility,
+eligibility-edge, full-rcm-cycle.

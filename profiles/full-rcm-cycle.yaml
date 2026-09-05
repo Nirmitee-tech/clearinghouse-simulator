@@ -1,0 +1,7 @@
+name: Full RCM cycle
+description: One patient carrying eligibility, acknowledgement and remittance — the whole revenue journey.
+scenarios:
+  - eligibility/01-active-full
+  - claimack/01-accepted
+  - remit/01-paid-full
+  - remit/03-coinsurance

@@ -1,0 +1,8 @@
+name: Patient responsibility
+description: Copay, coinsurance, deductible and patient-owed remittances — for compensation/collections testing.
+scenarios:
+  - remit/02-deductible
+  - remit/03-coinsurance
+  - remit/04-copay
+  - remit/34-pr-200
+  - remit/42-pr-242-non-network

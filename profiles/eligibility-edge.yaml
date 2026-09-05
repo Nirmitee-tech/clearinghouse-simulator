@@ -1,0 +1,5 @@
+name: Eligibility edge cases
+description: Active, inactive, needs-info and every AAA reject — for verification testing.
+scenarios:
+  - eligibility/01-active-full
+  - group: Eligibility (271)

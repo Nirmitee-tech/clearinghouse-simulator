@@ -11,6 +11,7 @@ import { createEngine } from './engine/core.js';
 import { createTrafficLog } from './engine/traffic.js';
 import { createFileStore } from './engine/expectations.js';
 import { buildScenario, writeScenario } from './engine/scenario-builder.js';
+import { createProfileStore, resolveProfile } from './engine/profiles.js';
 import { generateIdentity, bindingsFor } from './engine/patients.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,6 +20,7 @@ const CFG = {
   outbound: process.env.CM_OUTBOUND || path.join(ROOT, 'data/outbound'),
   stubs:    process.env.CM_STUBS    || path.join(ROOT, 'stubs'),
   templates:process.env.CM_TEMPLATES|| path.join(ROOT, 'templates'),
+  profiles: process.env.CM_PROFILES || path.join(ROOT, 'profiles'),
   port:     Number(process.env.CM_PORT || 8090),
   // Where the simulator keeps its own state. Separate from the code directory so
   // the process does not need write access to its install path — a container
@@ -30,6 +32,7 @@ for (const d of [CFG.inbound, CFG.outbound, CFG.state]) fs.mkdirSync(d, { recurs
 const trafficLog = createTrafficLog(path.join(CFG.state, 'traffic.jsonl'));
 const expectations = createFileStore(path.join(CFG.state, 'expectations.json'));
 const patients = createFileStore(path.join(CFG.state, 'patients.json'));
+const profiles = createProfileStore(CFG.profiles);
 const engine = createEngine({
   stubsDir: CFG.stubs, templatesDir: CFG.templates,
   outboundDir: CFG.outbound, trafficLog, expectations,
@@ -133,17 +136,16 @@ app.get('/api/patients', (_q, res) => {
   })));
 });
 
-app.post('/api/patients', (q, res) => {
-  const ids = Array.isArray(q.body?.scenarios) ? q.body.scenarios : [];
-  if (!ids.length) return res.status(400).json({ error: 'pick at least one scenario' });
-
+// Mint a patient bound to a set of scenario ids. Shared by the direct
+// patient endpoint and by profile-apply, so both behave identically.
+function createBoundPatient(ids, label) {
   const all = engine.listStubs();
   const chosen = ids.map(id => all.find(s => s.id === id)).filter(Boolean);
-  if (!chosen.length) return res.status(400).json({ error: 'none of those scenarios exist' });
+  if (!chosen.length) return null;
 
   const identity = generateIdentity(patients.all());
   const bindings = bindingsFor(chosen);
-  const patient = patients.put({ ...identity, label: q.body.label || null, bindings });
+  const patient = patients.put({ ...identity, label: label || null, bindings });
 
   // One expectation per transaction: several scenarios for the same transaction
   // become an ordered run across successive calls.
@@ -156,7 +158,43 @@ app.post('/api/patients', (q, res) => {
       patientId: patient.id,
     });
   }
+  return patient;
+}
+
+app.post('/api/patients', (q, res) => {
+  const ids = Array.isArray(q.body?.scenarios) ? q.body.scenarios : [];
+  if (!ids.length) return res.status(400).json({ error: 'pick at least one scenario' });
+  const patient = createBoundPatient(ids, q.body.label);
+  if (!patient) return res.status(400).json({ error: 'none of those scenarios exist' });
   res.json(patient);
+});
+
+// Profiles: named bundles of scenarios. List, save a custom one, or apply one
+// (which mints a patient carrying the whole group in a single call).
+app.get('/api/profiles', (_q, res) => {
+  const stubs = engine.listStubs();
+  res.json(profiles.all().map(p => ({
+    id: p.id, name: p.name, description: p.description || '',
+    scenarioCount: resolveProfile(p, stubs).length,
+  })));
+});
+
+app.post('/api/profiles', (q, res) => {
+  try {
+    const slug = profiles.save(q.body || {});
+    res.json({ id: slug });
+  } catch (e) {
+    res.status(e.code ? 400 : 500).json({ error: e.code || 'error', message: e.message || String(e) });
+  }
+});
+
+app.post('/api/profiles/:id/apply', (q, res) => {
+  const profile = profiles.get(q.params.id);
+  if (!profile) return res.status(404).json({ error: 'not_found', message: 'no such profile' });
+  const ids = resolveProfile(profile, engine.listStubs());
+  if (!ids.length) return res.status(400).json({ error: 'empty', message: 'profile resolved to no scenarios' });
+  const patient = createBoundPatient(ids, q.body?.label || profile.name);
+  res.json({ profile: profile.name, scenarios: ids.length, patient });
 });
 
 app.delete('/api/patients/:id', (q, res) => {

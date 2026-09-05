@@ -1,0 +1,13 @@
+name: Denials & rejections
+description: Every rejection and denial path, for testing the denial work queue.
+scenarios:
+  - claimack/02-subscriber-not-found
+  - claimack/21-rejection-then-late-ack
+  - claimack/22-patient-id-not-found
+  - claimack/23-relationship-not-18
+  - claimack/24-invalid-diagnosis-zcode
+  - claimack/25-rendering-provider-match
+  - claimack/26-not-eligible-dos
+  - remit/06-denied-no-auth
+  - remit/07-denied-non-covered
+  - remit/08-denied-timely-filing

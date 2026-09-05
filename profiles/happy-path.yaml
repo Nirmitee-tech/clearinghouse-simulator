@@ -1,0 +1,6 @@
+name: Happy path
+description: Clean end-to-end — eligibility active, claim accepted, paid in full.
+scenarios:
+  - eligibility/01-active-full
+  - claimack/01-accepted
+  - remit/01-paid-full
